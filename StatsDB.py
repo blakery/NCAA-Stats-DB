@@ -94,25 +94,20 @@ class StatsDB:
         values = date
 
         for i in range(len(headers)):
-            columns += ", " + headers[i]
+            # currently, "W-L" is parsed into "W" "L", so this should
+            # always execute as the 'else' clause
+            if(headers[i] == "W-L"): 
+                columns += ", W, L"
+            else: columns += ", " + headers[i]
+            
             if(teamStats[headers[i]] == 'TEXT'):
                 values += ", '{}'".format(stats[i])
+            # this corresponds to the "W-L" schenario above
+            elif(type(stats[i]) is tuple):
+                for s in stats[i]:
+                    values += ", " + s 
             else: values += ", " + stats[i]
-        #for h in headers[1:]:
-        #    columns += ", " + h
-            # currently, the parser breaks "W-L" down into "W" "L"already, 
-            # but this way, changing that won't cause problems
-           # if(h == "W-L"): columns += ", W, L"
-           # else: columns += ", " + h 
-        #for v in teamStats[1:]:
-#            if v is 
-         #   values += ", " + v
-            # corresponding to the above "W-L" schenario
-           # if(type(v) is tuple): values += ", " + v[0] + ", " + v[1]
-          #  else: values += ", " + v
-
         cmd = "INSERT INTO TeamStats({}) VALUES({});".format(columns, values)
-      #  print(cmd)
         self.cursor.execute(cmd)
 
         
