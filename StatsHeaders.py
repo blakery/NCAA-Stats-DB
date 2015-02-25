@@ -12,24 +12,24 @@ teamStats = {
     'W' : 'INT',
     'L' : 'INT',
     'PTS' : 'INT',
-    'PPG' : 'DECIMAL',    
-    'Pct' : 'DECIMAL',      
+    'PPG' : 'DECIMAL(6, 2)',    
+    'Pct' : 'DECIMAL(6, 2)',      
     'OPP_PTS' : 'INT',
-    'OPP_PPG' : 'DECIMAL',
-    'SCR_MAR' : 'DECIMAL',
+    'OPP_PPG' : 'DECIMAL(6, 2)',
+    'SCR_MAR' : 'DECIMAL(6, 2)',
     'FGA' : 'INT',
     'FGM' : 'INT',                
-    'FG_PERCENTAGE' : 'DECIMAL',
+    'FG_PERCENTAGE' : 'DECIMAL(6, 2)',
     'OPP_FG'  : 'INT',
     'OPP_FGA' : 'INT',  
-    'OPP_FG_PERCENTAGE' : 'DECIMAL',
+    'OPP_FG_PERCENTAGE' : 'DECIMAL(6, 2)',
     '3FG' : 'INT', ####
-    '3PG' : 'DECIMAL', ####
+    '3PG' : 'DECIMAL(6, 2)', ####
     'FT' : 'INT',
     'FTA' : 'INT',
-    'FT_PERCENTAGE' : 'DECIMAL',
+    'FT_PERCENTAGE' : 'DECIMAL(6, 2)',
     'REB' : 'INT',
-    'RPG' : 'DECIMAL'
+    'RPG' : 'DECIMAL(6, 2)'
         
 }
 
@@ -37,7 +37,7 @@ teamStats = {
 playerStaticStats = {
     'Name' : 'TEXT',
     'Team' : 'TEXT',
-    'ht'   : 'DECIMAL'
+    'ht'   : 'DECIMAL(6, 2)'
 }
 
 playerStats = {
@@ -51,29 +51,29 @@ playerStats = {
     '3FG' : 'INT',
     'FT'  : 'INT',
     'PTS' : 'INT',
-    'PPG' : 'DECIMAL',
+    'PPG' : 'DECIMAL(6, 2)',
     'G'   : 'INT',
     'FGM' : 'INT', 
     'FGA' : 'INT', 
-    'FG_PERCENTAGE' : 'DECIMAL',
+    'FG_PERCENTAGE' : 'DECIMAL(6, 2)',
     '3FG' : 'INT',
-    '3PG' : 'DECIMAL',
+    '3PG' : 'DECIMAL(6, 2)',
     '3FGA': 'INT',
-    '3FG_PERCENTAGE' : 'DECIMAL',
+    '3FG_PERCENTAGE' : 'DECIMAL(6, 2)',
     'FT'  : 'INT',
     'FTA' : 'INT',
-    'FT_PERCENTAGE' : 'DECIMAL',
+    'FT_PERCENTAGE' : 'DECIMAL(6, 2)',
     'REB' :'INT',
-    'RPG' : 'DECIMAL',
+    'RPG' : 'DECIMAL(6, 2)',
     'AST' : 'INT',
-    'APG' : 'DECIMAL',
+    'APG' : 'DECIMAL(6, 2)',
     'BLKS' : 'INT',
-    'BKPG' : 'DECIMAL',
+    'BKPG' : 'DECIMAL(6, 2)',
     'ST' : 'INT',
-    'STPG' : 'DECIMAL',
+    'STPG' : 'DECIMAL(6, 2)',
     'AST' : 'INT',
     'TK' : 'INT', #TO
-    'Ratio' : 'DECIMAL'
+    'Ratio' : 'DECIMAL(6, 2)'
 }
 
 

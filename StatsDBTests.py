@@ -65,13 +65,18 @@ class TestStatsDB(unittest.TestCase):
         
                 
     def test_addTeamStats(self):
-        team = ['teamx', '1.1']
-        header = ['Name', 'PPG']
+        team = ['teamx', "1.1"]
+        header = ["Name", "PPG"]
         date = "02/11/1995"
         s = self.sDB
         
         s.addTeamStats(team, header, date)
         
+        s.execute("SELECT PPG from TeamStats \
+                   WHERE week = {} AND name = '{}';".format(date, team[0]))
+        x = s.cursor.fetchone()[0]
+        self.assertTrue(float(x) == 1.10)
+
         
         
         

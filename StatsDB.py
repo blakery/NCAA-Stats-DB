@@ -87,25 +87,32 @@ class StatsDB:
 
 
     # teamStats is a list consisting of: [team name, stats...]
-    def addTeamStats(self, teamStats, headers, date):
-        self.__addTeam(teamStats[0])
+    def addTeamStats(self, stats, headers, date):
+        self.__addTeam(stats[0])
         
-        columns = "name, week" 
-        values = teamStats[0] + ", " + date
+        columns = "week" 
+        values = date
 
-        for h in headers[1:]:
+        for i in range(len(headers)):
+            columns += ", " + headers[i]
+            if(teamStats[headers[i]] == 'TEXT'):
+                values += ", '{}'".format(stats[i])
+            else: values += ", " + stats[i]
+        #for h in headers[1:]:
+        #    columns += ", " + h
             # currently, the parser breaks "W-L" down into "W" "L"already, 
             # but this way, changing that won't cause problems
-            if(h == "W-L"): columns += ", W, L"
-            else: columns += ", " + h 
-
-        for v in teamStats[1:]:
+           # if(h == "W-L"): columns += ", W, L"
+           # else: columns += ", " + h 
+        #for v in teamStats[1:]:
+#            if v is 
+         #   values += ", " + v
             # corresponding to the above "W-L" schenario
-            if(type(v) is tuple): values += ", " + v[0] + ", " + v[1]
-            else: values += ", " + v
+           # if(type(v) is tuple): values += ", " + v[0] + ", " + v[1]
+          #  else: values += ", " + v
 
         cmd = "INSERT INTO TeamStats({}) VALUES({});".format(columns, values)
-        print(cmd)
+      #  print(cmd)
         self.cursor.execute(cmd)
 
         
@@ -140,17 +147,33 @@ class StatsDB:
             self.__updatePlayerStats(playerStats, headers, date)
 
 
+
+    def __addPlayer(self, player, school):
+        self.__addTeam(school)
+        self.cursor.execute("SELECT * FROM {} \
+            WHERE player = '{}';".format(school, player))
+        if(len(self.cursor.fetchall()) == 0):
+            self.cursor.execute(
+                "INSERT INTO {}(player) VALUES('{}');".
+                format(school, player))
+            self.__createPlayerStatsTable(player)
+            self.db.commit()        
+        else: pass  
+
+
+
     def __addNewPlayerStats(self, playerStats, headers, date):
             
         # FIXME currently yr will be listed as a stat. 
         #       the headers should be checked, and yr should be skipped.
         #       also need to check for tuples in player stats...?
+        # FIXME: will not handle 'TEXT' properly! see addTeamStats()
         columns = "week"
         for h in headers[2:]:
             columns += ", " + h
 
         values = date
-        for s in playerStats[2:]:
+        for s in playerStats[2:]: 
             values += ", " + s
         cmd = "INSERT INTO {}({}) VALUES ({})".format(playerStats[0], 
             columns, values)        
@@ -173,17 +196,7 @@ class StatsDB:
             
             
                 
-    def __addPlayer(self, player, school):
-        self.__addTeam(school)
-        self.cursor.execute("SELECT * FROM {} \
-            WHERE player = '{}';".format(school, player))
-        if(len(self.cursor.fetchall()) == 0):
-            self.cursor.execute(
-                "INSERT INTO {}(player) VALUES('{}');".
-                format(school, player))
-            self.__createPlayerStatsTable(player)
-            self.db.commit()        
-        else: pass     
+   
   
 
     def __createPlayerStatsTable(self, player):
