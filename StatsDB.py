@@ -104,6 +104,8 @@ class StatsDB:
         self.cursor.execute(cmd)
 
         
+        
+        
     def __addTeam(self, school):
         self.cursor.execute(
             "SELECT * FROM teams WHERE name = '{}';".format(school))
@@ -124,7 +126,6 @@ class StatsDB:
     # playerStats is a list in the form of [name, school, stats...]
     # headers is a list of the corresponding column names
     def addPlayerStats(self, playerStats, headers, date):    
-        #self._addTeam(playerStats[1])
         self.__addPlayer(playerStats[0], playerStats[1])
 
         self.cursor.execute(
@@ -135,7 +136,11 @@ class StatsDB:
             self.__updatePlayerStats(playerStats, headers, date)
 
 
-
+    # __addPlayer()
+    # called by addPlayerStats() each time it executes
+    # checks to see if the player named is already listed.
+    # if not, adds the player to the school's roster and creates a table 
+    #   for the player's stats.
     def __addPlayer(self, player, school):
         self.__addTeam(school)
         self.cursor.execute("SELECT * FROM {} \
@@ -149,7 +154,8 @@ class StatsDB:
         else: pass  
 
 
-
+    #  __addNewPlayerStats()
+    # called by addPlayerStats()
     def __addNewPlayerStats(self, stats, headers, date):
         columns = "week"
         values = date
@@ -166,6 +172,8 @@ class StatsDB:
         self.cursor.execute(cmd)
 
 
+    # __updatePlayerStats()
+    # called by addPlayerStats() if a player already exists
     def __updatePlayerStats(self, stats, headers, date):
         cmd = "UPDATE {}\n".format(stats[0])
         cmd += "SET {} = {},".format(headers[2], stats[2])
@@ -180,10 +188,9 @@ class StatsDB:
         
             
             
-                
-   
-  
-
+    # __createPlayerStatsTable()
+    # called by __addPlayer() to initialize the table named for the player,
+    # consisting of all of their stats keyed by week            
     def __createPlayerStatsTable(self, player):
         try: self.cursor.execute( "SELECT * FROM {};".format(player))
         except:
@@ -192,13 +199,10 @@ class StatsDB:
             for (name, value) in fields:
                 cmd +=  name + " " + value + ", \n"
             
-            cmd += "PRIMARY KEY (week));"
-           # print(cmd)
-            
+            cmd += "PRIMARY KEY (week));"            
             self.cursor.execute(cmd) 
         
         
-
 
 
 
