@@ -94,19 +94,12 @@ class StatsDB:
         values = date
 
         for i in range(len(headers)):
-            # currently, "W-L" is parsed into "W" "L", so this should
-            # always execute as the 'else' clause
-            if(headers[i] == "W-L"): 
-                columns += ", W, L"
-            else: columns += ", " + headers[i]
+            columns += ", " + headers[i]
             
             if(teamStats[headers[i]] == 'TEXT'):
                 values += ", '{}'".format(stats[i])
-            # this corresponds to the "W-L" schenario above
-            elif(type(stats[i]) is tuple):
-                for s in stats[i]:
-                    values += ", " + s 
             else: values += ", " + stats[i]
+        
         cmd = "INSERT INTO TeamStats({}) VALUES({});".format(columns, values)
         self.cursor.execute(cmd)
 
@@ -157,34 +150,31 @@ class StatsDB:
 
 
 
-    def __addNewPlayerStats(self, playerStats, headers, date):
-            
-        # FIXME currently yr will be listed as a stat. 
-        #       the headers should be checked, and yr should be skipped.
-        #       also need to check for tuples in player stats...?
-        # FIXME: will not handle 'TEXT' properly! see addTeamStats()
+    def __addNewPlayerStats(self, stats, headers, date):
         columns = "week"
-        for h in headers[2:]:
-            columns += ", " + h
-
         values = date
-        for s in playerStats[2:]: 
-            values += ", " + s
-        cmd = "INSERT INTO {}({}) VALUES ({})".format(playerStats[0], 
-            columns, values)        
+
+        for i in range(2, len(headers)):
+            columns += ", " + headers[i]
+            if(playerStats[headers[i]] == 'TEXT'):
+                values += ", '" + stats[i] + "'"
+            elif( type(stats[i]) is tuple):
+                for s in stats[i]: values += ", " + s
+            else: values += ", " + stats[i]
+            
+        cmd = "INSERT INTO {}({}) VALUES ({})".format(stats[0], columns, values)
         self.cursor.execute(cmd)
 
 
-    def __updatePlayerStats(self, playerStats, headers, date):
-            
-        # FIXME currently yr will be listed as a stat. 
-        #       the headers should be checked, and yr should be skipped.
-        #       also need to check for tuples in player stats...?
-        cmd = "UPDATE {}\n".format(playerStats[0])
-        cmd += "SET {} = {},".format(headers[2], playerStats[2])
+    def __updatePlayerStats(self, stats, headers, date):
+        cmd = "UPDATE {}\n".format(stats[0])
+        cmd += "SET {} = {},".format(headers[2], stats[2])
         
-        for i in range(3, len(playerStats)):
-            cmd += ", {} = {}".format(headers[i], playerStats[i])
+        for i in range(3, len(stats)):  
+            if(playerStats[headers[i]] == 'TEXT'):
+                cmd += ", {} = '{}'".format(headers[i], stats[i])   
+            else:
+                cmd += ", {} = {}".format(headers[i], playerStats[i])
         cmd += "\nWHERE week = {};".format(date)
         self.cursor.execute(cmd)
         

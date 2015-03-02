@@ -63,10 +63,15 @@ def p_ranking_line(p):
     '''ranking_line : value NEWLINE
                     | value DELIM ranking_line
     '''
-    if(len(p) == 3) : p[0] = [p[1]]
-    elif(len(p) ==4) : 
-        p[0] = [p[1]]
+    
+    if(type(p[1]) is list): p[1] = p[1]
+    else: p[1] = [p[1]]
+    
+    if(len(p) == 3): p[0] = p[1]
+    elif(len(p) == 4):
+        p[0] = p[1]
         p[0].extend(p[3])
+        #p[0].append(p[3])
         
 
         
@@ -87,7 +92,11 @@ def p_value(p):
             p[0] = p[2] + p[3]
         else:
             p[0] = p[2] + "_" + p[3]
-    elif(len(p) == 6) : p[0] = (p[2], p[4])
+    elif(len(p) == 6) : p[0] = [p[2], p[4]]
+
+
+
+
 
 def p_team_name(p):
     '''team_name : WORD

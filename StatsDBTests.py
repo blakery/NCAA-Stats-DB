@@ -57,13 +57,16 @@ class TestStatsDB(unittest.TestCase):
         
         s.execute("SELECT G FROM bob WHERE week = {};".format(date))
         self.assertTrue(s.cursor.fetchone()[0] == 5)
+        
         s.execute("SELECT FGA FROM bob WHERE week = {};".format(date))
         self.assertTrue(s.cursor.fetchone()[0] == 2)
         s.execute("SELECT * from bobs_school WHERE player = 'bob';")
         self.assertTrue(s.cursor.fetchone()[0] == 'bob')
         
         
-                
+        
+
+
     def test_addTeamStats(self):
         team = ['teamx', "1.1"]
         header = ["Name", "PPG"]

@@ -29,8 +29,9 @@ teamStats = {
     'FTA' : 'INT',
     'FT_PERCENTAGE' : 'DECIMAL(6, 2)',
     'REB' : 'INT',
-    'RPG' : 'DECIMAL(6, 2)'
-        
+    'RPG' : 'DECIMAL(6, 2)',
+    'PFPG': 'DECIMAL(6, 2)',
+    'DQ': 'INT'
 }
 
 
