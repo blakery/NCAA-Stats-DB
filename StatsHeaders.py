@@ -42,8 +42,6 @@ playerStaticStats = {
 }
 
 playerStats = {
-#    'Name' : 'TEXT',
-#    'Team' : 'TEXT',
     'Week' : 'DATE',
     'Cl'  : 'TEXT', # year? if so, no idea why it's 'cl'
     'Pos' : 'TEXT', # a player might change what position they play
@@ -72,7 +70,7 @@ playerStats = {
     'ST' : 'INT',
     'STPG' : 'DECIMAL(6, 2)',
     'AST' : 'INT',
-    'TK' : 'INT', #TO
+    'TK' : 'INT', #FIXME is really 'TO' - but that's a reserved keyword in sql
     'Ratio' : 'DECIMAL(6, 2)'
 }
 
