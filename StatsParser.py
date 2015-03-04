@@ -117,18 +117,18 @@ def p_integer(p):
     '''integer : INTEGER 
                | DASH INTEGER''' # negative
     if(len(p) == 2):
-        p[0] = int(p[1]) #p[1]#
+        p[0] = p[1] #int(p[1])
     elif(len(p)== 3):
-        p[0] = int(p[1] + p[2]) #p[1] + p[2]#
+        p[0] = p[1] + p[2]#int(p[1] + p[2])
 
 
 def p_decimal(p):
     '''decimal : DECIMAL
                 | DASH DECIMAL''' # negative
     if(len(p) == 2):
-        p[0] = float(p[1]) #p[1]
+        p[0] = p[1] #float(p[1])
     elif(len(p)== 3):
-        p[0] = float(p[1] + p[2])
+        p[0] = p[1] + p[2]#float(p[1] + p[2])
               
 
 ########### END OF GRAMMAR RULES ########################

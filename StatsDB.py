@@ -175,15 +175,15 @@ class StatsDB:
     # __updatePlayerStats()
     # called by addPlayerStats() if a player already exists
     def __updatePlayerStats(self, stats, headers, date):
-        cmd = "UPDATE {}\n".format(stats[0])
-        cmd += "SET {} = {},".format(headers[2], stats[2])
+        cmd = "UPDATE {} \n".format(stats[0])
+        cmd += "SET {} = {}".format(headers[2], stats[2])
         
         for i in range(3, len(stats)):  
             if(playerStats[headers[i]] == 'TEXT'):
                 cmd += ", {} = '{}'".format(headers[i], stats[i])   
             else:
-                cmd += ", {} = {}".format(headers[i], playerStats[i])
-        cmd += "\nWHERE week = {};".format(date)
+                cmd += ", {} = {}".format(headers[i], stats[i])
+        cmd += "\n WHERE week = {};".format(date)
         self.cursor.execute(cmd)
         
             

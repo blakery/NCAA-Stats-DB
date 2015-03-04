@@ -29,7 +29,6 @@ class TestStatsDB(unittest.TestCase):
         
         self.sDB.createTeamsTable()
         self.sDB.createTeamStatsTable()
-        #self.sDB.createPlayerStatsTable()
         
         super(TestStatsDB, self).__init__(argv)
     
@@ -66,6 +65,37 @@ class TestStatsDB(unittest.TestCase):
         
         
 
+    def test_updatePlayer(self):
+        player1 = ["player_bob", "a_school", "5", "3"]
+        header1 = ["Name", "Team", "G", "FGM"]
+        player2 = ["player_bob", "a_school", "3", "6"]
+        header2 = ["Name", "Team", "FT", "PTS"]
+        date = "05/03/2002"
+        s = self.sDB
+        
+        s.addPlayerStats(player1, header1, date)
+        s.addPlayerStats(player2, header2, date)
+        
+        s.execute("SELECT * FROM player_bob WHERE week = {}".format(date))
+        self.assertTrue(len(s.cursor.fetchall()) == 1)
+        
+        s.execute("SELECT G FROM player_bob WHERE week = {}".format(date))
+        self.assertTrue(s.cursor.fetchone()[0] == 5)
+        
+        s.execute("SELECT FGM FROM player_bob WHERE week = {}".format(date))
+        self.assertTrue(s.cursor.fetchone()[0] == 3)
+
+        s.execute("SELECT FT FROM player_bob WHERE week = {}".format(date))
+        self.assertTrue(s.cursor.fetchone()[0] == 3)
+        
+        s.execute("SELECT PTS FROM player_bob WHERE week = {}".format(date))
+        self.assertTrue(s.cursor.fetchone()[0] == 6)
+        
+        s.execute("SELECT PPG FROM player_bob WHERE week = {}".format(date))
+        self.assertTrue(s.cursor.fetchone()[0] is None)
+
+
+
 
     def test_addTeamStats(self):
         team = ['teamx', "1.1"]
@@ -77,8 +107,7 @@ class TestStatsDB(unittest.TestCase):
         
         s.execute("SELECT PPG from TeamStats \
                    WHERE week = {} AND name = '{}';".format(date, team[0]))
-        x = s.cursor.fetchone()[0]
-        self.assertTrue(float(x) == 1.10)
+        self.assertTrue(float(s.cursor.fetchone()[0]) == 1.10)
 
         
         

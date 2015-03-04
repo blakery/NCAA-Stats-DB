@@ -53,7 +53,6 @@ playerStats = {
     'FT'  : 'INT',
     'PTS' : 'INT',
     'PPG' : 'DECIMAL(6, 2)',
-    'G'   : 'INT',
     'FGM' : 'INT', 
     'FGA' : 'INT', 
     'FG_PERCENTAGE' : 'DECIMAL(6, 2)',
