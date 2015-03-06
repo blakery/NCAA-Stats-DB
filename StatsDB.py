@@ -161,7 +161,11 @@ class StatsDB:
         values = date
 
         for i in range(2, len(headers)):
-            columns += ", " + headers[i]
+            if(headers[i] == 'TO'): 
+                columns += ", Turnovers"
+                headers[i] = 'Turnovers' # change so the check later can find it
+            else: columns += ", " + headers[i]
+
             if(playerStats[headers[i]] == 'TEXT'):
                 values += ", '" + stats[i] + "'"
             elif( type(stats[i]) is tuple):
@@ -179,7 +183,9 @@ class StatsDB:
         cmd += "SET {} = {}".format(headers[2], stats[2])
         
         for i in range(3, len(stats)):  
-            if(playerStats[headers[i]] == 'TEXT'):
+            if(headers[i] == 'TO'): # 'TO' is a reserved keyword in sql
+                cmd += ", Turnovers = " + stats[i]
+            elif(playerStats[headers[i]] == 'TEXT'):
                 cmd += ", {} = '{}'".format(headers[i], stats[i])   
             else:
                 cmd += ", {} = {}".format(headers[i], stats[i])

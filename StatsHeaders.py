@@ -70,7 +70,7 @@ playerStats = {
     'ST' : 'INT',
     'STPG' : 'DECIMAL(6, 2)',
     'AST' : 'INT',
-    'TK' : 'INT', #FIXME is really 'TO' - but that's a reserved keyword in sql
+    'Turnovers' : 'INT', #this is really 'TO' - but that's a reserved keyword in sql
     'Ratio' : 'DECIMAL(6, 2)'
 }
 

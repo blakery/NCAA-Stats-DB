@@ -85,18 +85,29 @@ class TestStatsDB(unittest.TestCase):
         s.execute("SELECT FGM FROM player_bob WHERE week = {}".format(date))
         self.assertTrue(s.cursor.fetchone()[0] == 3)
 
-        s.execute("SELECT FT FROM player_bob WHERE week = {}".format(date))
+        s.execute("SELECT FT FROM player_bob WHERE week = {};".format(date))
         self.assertTrue(s.cursor.fetchone()[0] == 3)
         
-        s.execute("SELECT PTS FROM player_bob WHERE week = {}".format(date))
+        s.execute("SELECT PTS FROM player_bob WHERE week = {};".format(date))
         self.assertTrue(s.cursor.fetchone()[0] == 6)
         
-        s.execute("SELECT PPG FROM player_bob WHERE week = {}".format(date))
+        s.execute("SELECT PPG FROM player_bob WHERE week = {};".format(date))
         self.assertTrue(s.cursor.fetchone()[0] is None)
 
+    # 'Turnovers' is a bit of a corner case, since the original column name, 
+    #'TO' is a reserved keyword in sql. So we need to check it explicitly
+    def test_turnovers(self):
+        player = ['test_turnovers', 'any_school', '84']
+        header = ['Name', 'Team', 'TO']
+        date = '12/12/2012'
+        s = self.sDB        
+        
+        s.addPlayerStats(player, header, date)
+        s.execute("SELECT turnovers FROM test_turnovers WHERE week = {};".format(date))
+        self.assertTrue(s.cursor.fetchone()[0] == 84)        
 
 
-
+        
     def test_addTeamStats(self):
         team = ['teamx', "1.1"]
         header = ["Name", "PPG"]
