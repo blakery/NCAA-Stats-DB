@@ -40,12 +40,6 @@ class TestStatsDB(unittest.TestCase):
     #       An entry for the player keyed by name should exist in the 
     #           roster of the player's team
     #       A table should exist named "[player-name]"
-
-
-    # After a team is added, the following should be true:
-    #       It's name should be present in the table named "teams"
-    #       A table should exist named "[team-name]Roster"
-
     def test_addPlayerStats(self):
         player = ['bob', 'bobs_school', '2', '5'] 
         header = ['Name', 'Team', 'FGA', 'G']
@@ -94,6 +88,7 @@ class TestStatsDB(unittest.TestCase):
         s.execute("SELECT PPG FROM player_bob WHERE week = {};".format(date))
         self.assertTrue(s.cursor.fetchone()[0] is None)
 
+
     # 'Turnovers' is a bit of a corner case, since the original column name, 
     #'TO' is a reserved keyword in sql. So we need to check it explicitly
     def test_turnovers(self):
@@ -107,7 +102,9 @@ class TestStatsDB(unittest.TestCase):
         self.assertTrue(s.cursor.fetchone()[0] == 84)        
 
 
-        
+    # After a team is added, the following should be true:
+    #       It's name should be present in the table named "teams"
+    #       A table should exist named "[team-name]Roster"        
     def test_addTeamStats(self):
         team = ['teamx', "1.1"]
         header = ["Name", "PPG"]
