@@ -5,7 +5,6 @@ import ply.lex as lex
 tokens = [ 
     'DELIM',
     'NEWLINE',    
-#    'DATE',
     'INTEGER',
     'DECIMAL',
     'QUOTE',
@@ -21,13 +20,27 @@ t_DECIMAL = r'\d+\.\d+'
 t_INTEGER = r'\d+'
 t_DELIM = r','
 t_QUOTE = r'"'
-t_WORD = r"[A-Za-z&][A-Za-z&'.%-]*"
-t_TEAM_STATE = r'\([A-Z]{2}\)'
+
 t_DASH = '-'
 t_SLASH = '/'
 t_ignore = '(\t| )'
 
 
+def t_WORD(t):
+    r"[A-Za-z&][A-Za-z&'.%]*[-]?"
+    t.value = t.value.replace("'","")#t.value.strip("'.")
+    t.value = t.value.replace(".","")
+    t.value = t.value.replace("-","")
+    t.value = t.value.replace("&","_and_")
+    t.value = t.value.replace("%","_PERCENTAGE")
+    return t
+    
+def t_TEAM_STATE(t):
+    r'\([A-Z]{2}\)'        
+    t.value = ""
+#    t.value = t.value.strip("()")
+    return t
+        
 def t_NEWLINE(t):
     r'(\n)|(\r\n)'
     t.lexer.lineno +=1
@@ -39,11 +52,7 @@ def t_NEWLINE(t):
 
 states = (
     ('tags', 'exclusive'),
-)
-
-#def t_DATE(t): 
-#    r'(\d{2})/(\d{2})/(\d{4})'
-    
+)   
 
 def t_tags(t):
     r'<'
@@ -54,12 +63,14 @@ def t_tags_end(t):
     r'<>'
     t.lexer.begin('INITIAL') 
 
-t_tags_ignore =  ' |\n|[A-Za-z+=/.}{)(:"?>;%&-]'
+def t_tags_ANGLE_BRACKET_CLOSE(t):
+    r'>'
+    t.lexer.skip(1)
+
+t_tags_ignore =  ' |\n|[A-Za-z+=.}{)(:"?;%&-]'
 
 def t_tags_error(t):
     t.lexer.skip(1)
-
-
 
 def t_error(t):
     print("Illegal character '{}' at line {}".format(

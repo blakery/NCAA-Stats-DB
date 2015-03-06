@@ -63,9 +63,9 @@ class StatsDB:
                 passwd=password, db=db)
         self.cursor = self.db.cursor()
         
-#        self.createTeamsTable()
-#        self.createTeamStatsTable()
-#        self.createPlayerStatsTable()
+        self.createTeamsTable()
+        self.createTeamStatsTable()
+
 
         
 
@@ -107,6 +107,7 @@ class StatsDB:
         
         
     def __addTeam(self, school):
+        print("adding school:" + school)
         self.cursor.execute(
             "SELECT * FROM teams WHERE name = '{}';".format(school))
         if(len(self.cursor.fetchall()) == 0): 
@@ -118,7 +119,7 @@ class StatsDB:
 
     def __createTeamRosterTable(self, school):
         self.cursor.execute(
-            "CREATE TABLE {}(player TEXT, ht DECIMAL);".format(school))
+            "CREATE TABLE {}(player TEXT, ht DECIMAL(6, 2));".format(school))
 
 
 
@@ -168,8 +169,9 @@ class StatsDB:
 
             if(playerStats[headers[i]] == 'TEXT'):
                 values += ", '" + stats[i] + "'"
-            elif( type(stats[i]) is tuple):
-                for s in stats[i]: values += ", " + s
+            #instead of being wins-losses, as in teams, for players this signifies height
+            elif( type(stats[i]) is tuple): 
+                values += ", " + stats[0] + "." + stats[1]
             else: values += ", " + stats[i]
             
         cmd = "INSERT INTO {}({}) VALUES ({})".format(stats[0], columns, values)
@@ -187,6 +189,8 @@ class StatsDB:
                 cmd += ", Turnovers = " + stats[i]
             elif(playerStats[headers[i]] == 'TEXT'):
                 cmd += ", {} = '{}'".format(headers[i], stats[i])   
+            elif(type(stats[i]) is tuple): 
+                cmd += ", {} = {}.{}".format(headers[i], stats[0], stats[1])
             else:
                 cmd += ", {} = {}".format(headers[i], stats[i])
         cmd += "\n WHERE week = {};".format(date)

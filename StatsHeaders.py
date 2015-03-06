@@ -23,26 +23,30 @@ teamStats = {
     'OPP_FG'  : 'INT',
     'OPP_FGA' : 'INT',  
     'OPP_FG_PERCENTAGE' : 'DECIMAL(6, 2)',
-    '3FG' : 'INT', ####
-    '3PG' : 'DECIMAL(6, 2)', ####
+    '3FG' : 'INT', 
+    '3PG' : 'DECIMAL(6, 2)', 
+    '3FGA' : 'INT',
+    '3FG_PERCENTAGE': 'DECIMAL(6, 2)',
     'FT' : 'INT',
     'FTA' : 'INT',
     'FT_PERCENTAGE' : 'DECIMAL(6, 2)',
     'REB' : 'INT',
     'RPG' : 'DECIMAL(6, 2)',
     'PFPG': 'DECIMAL(6, 2)',
-    'DQ': 'INT'
+    'DQ': 'INT',
+    'GM': 'INT'
 }
 
 
 playerStaticStats = {
     'Name' : 'TEXT',
     'Team' : 'TEXT',
-    'ht'   : 'DECIMAL(6, 2)'
+
 }
 
 playerStats = {
     'Week' : 'DATE',
+    'Ht'   : 'DECIMAL(6, 2)',
     'Cl'  : 'TEXT', # year? if so, no idea why it's 'cl'
     'Pos' : 'TEXT', # a player might change what position they play
     'G'   : 'INT',

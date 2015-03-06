@@ -1,6 +1,8 @@
 import ply.yacc as yacc
 import StatsLexer
+import StatsDB
 from StatsLexer import tokens
+
 
 g_columns=None
 g_date=None
@@ -34,13 +36,18 @@ def p_date(p):
 # in order to do operations on the completed block
 def p_section(p):
     '''section : block'''
-    global g_columns
-    g_columns = p[1][0]
-    p[1] = p[1][1:]
-    p[0] = p[1]
-    print(g_columns)
-    for i in p[0]:
-        print(i)
+#    print(g_date)
+#    for i in p[1]:
+#        print(i)
+    s = StatsDB.StatsDB()
+    s.processBlock(p[1], g_date)
+    #global g_columns
+    #g_columns = p[1][0]
+    #p[1] = p[1][1:]
+    #p[0] = p[1]
+
+#    print(g_columns)
+
 
 
 def p_block(p):
@@ -90,6 +97,8 @@ def p_value(p):
         # allow for '3PT', '3FG', and the like in column titles
         if(p[2] == '3'):
             p[0] = p[2] + p[3]
+        elif((p[2] == 'W') & (p[3] == 'L')):
+            p[0] = [p[2], p[3]]
         else:
             p[0] = p[2] + "_" + p[3]
     elif(len(p) == 6) : p[0] = [p[2], p[4]]
