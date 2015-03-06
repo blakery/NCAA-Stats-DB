@@ -41,12 +41,7 @@ def p_section(p):
 #        print(i)
     s = StatsDB.StatsDB()
     s.processBlock(p[1], g_date)
-    #global g_columns
-    #g_columns = p[1][0]
-    #p[1] = p[1][1:]
-    #p[0] = p[1]
 
-#    print(g_columns)
 
 
 
@@ -101,7 +96,8 @@ def p_value(p):
             p[0] = [p[2], p[3]]
         else:
             p[0] = p[2] + "_" + p[3]
-    elif(len(p) == 6) : p[0] = [p[2], p[4]]
+    elif(len(p) == 6) : 
+        p[0] = [p[2], p[4]]
 
 
 

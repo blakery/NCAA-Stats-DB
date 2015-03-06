@@ -107,7 +107,6 @@ class StatsDB:
         
         
     def __addTeam(self, school):
-        print("adding school:" + school)
         self.cursor.execute(
             "SELECT * FROM teams WHERE name = '{}';".format(school))
         if(len(self.cursor.fetchall()) == 0): 
@@ -124,17 +123,17 @@ class StatsDB:
 
 
 
-    # playerStats is a list in the form of [name, school, stats...]
+    # stats is a list in the form of [name, school, stats...]
     # headers is a list of the corresponding column names
-    def addPlayerStats(self, playerStats, headers, date):    
-        self.__addPlayer(playerStats[0], playerStats[1])
+    def addPlayerStats(self, stats, headers, date):    
+        self.__addPlayer(stats[0], stats[1])
 
         self.cursor.execute(
-            "SELECT * FROM {} WHERE week = {};".format(playerStats[0], date))
+            "SELECT * FROM {} WHERE week = {};".format(stats[0], date))
         if(len(self.cursor.fetchall()) == 0): 
-            self.__addNewPlayerStats(playerStats, headers, date)
+            self.__addNewPlayerStats(stats, headers, date)
         else: 
-            self.__updatePlayerStats(playerStats, headers, date)
+            self.__updatePlayerStats(stats, headers, date)
 
 
     # __addPlayer()
@@ -144,8 +143,8 @@ class StatsDB:
     #   for the player's stats.
     def __addPlayer(self, player, school):
         self.__addTeam(school)
-        self.cursor.execute("SELECT * FROM {} \
-            WHERE player = '{}';".format(school, player))
+        self.cursor.execute(
+            "SELECT * FROM {} WHERE player = '{}';".format(school, player))
         if(len(self.cursor.fetchall()) == 0):
             self.cursor.execute(
                 "INSERT INTO {}(player) VALUES('{}');".
@@ -169,9 +168,9 @@ class StatsDB:
 
             if(playerStats[headers[i]] == 'TEXT'):
                 values += ", '" + stats[i] + "'"
-            #instead of being wins-losses, as in teams, for players this signifies height
-            elif( type(stats[i]) is tuple): 
-                values += ", " + stats[0] + "." + stats[1]
+            elif(headers[i] == "Ht"): 
+                values += ", " + stats[i] + "." + stats[i+1]
+                stats = stats[:i] + stats[i+1:]  #FIXME this is hidious and horribly inefficient
             else: values += ", " + stats[i]
             
         cmd = "INSERT INTO {}({}) VALUES ({})".format(stats[0], columns, values)
