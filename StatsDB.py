@@ -70,18 +70,26 @@ class StatsDB:
         
 
     def processBlock(self, block, date):
-        
+        if(len(block) == 0): return
         header = block[0]
         # player stats always have "Team" as the name of the 3rd column;
         # team stats do not
         # exclude the first column, the numerical ranking, as it's 
         #   a. a derived statistic, and 
         #   b. too variable and inconsitant to be of any use.
-        if(header[2] == 'Team'): 
-            for player in block[1:]:                
+        print(type(header))
+        if((len(header) < 3)):  
+            print("invalid header")
+            print(header)
+        elif(header[2] == 'Team'): 
+            print("player block")
+            for player in block[1:]:  
+                print(player)              
                 self.addPlayerStats(player[1:], header[1:], date)
         else:
+            print("team block")
             for team in block[1:]:
+                print(team)
                 self.addTeamStats(team[1:], header[1:], date)
 
 
@@ -94,6 +102,8 @@ class StatsDB:
         values = date
 
         for i in range(len(headers)):
+            if(headers[i] == 'TO'): headers[i] = 'TURNOVERS'
+
             columns += ", " + headers[i]
             
             if(teamStats[headers[i]] == 'TEXT'):
@@ -161,10 +171,9 @@ class StatsDB:
         values = date
 
         for i in range(2, len(headers)):
-            if(headers[i] == 'TO'): 
-                columns += ", Turnovers"
-                headers[i] = 'Turnovers' # change so the check later can find it
-            else: columns += ", " + headers[i]
+            if(headers[i] == 'TO'): headers[i] = 'TURNOVERS'
+
+            columns += ", " + headers[i]
 
             if(playerStats[headers[i]] == 'TEXT'):
                 values += ", '" + stats[i] + "'"
@@ -182,7 +191,7 @@ class StatsDB:
     def __updatePlayerStats(self, stats, headers, date):
         cmd = "UPDATE {} \n".format(stats[0])
         cmd += "SET {} = {}".format(headers[2], stats[2])
-        
+
         for i in range(3, len(stats)):  
             if(headers[i] == 'TO'): # 'TO' is a reserved keyword in sql
                 cmd += ", Turnovers = " + stats[i]

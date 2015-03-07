@@ -31,10 +31,27 @@ teamStats = {
     'FTA' : 'INT',
     'FT_PERCENTAGE' : 'DECIMAL(6, 2)',
     'REB' : 'INT',
+    'OPP_REB': 'INT',
     'RPG' : 'DECIMAL(6, 2)',
+    'OPP_RPG' : 'DECIMAL(6, 2)',
     'PFPG': 'DECIMAL(6, 2)',
+    'REB_MAR' : 'DECIMAL(6, 2)',
     'DQ': 'INT',
-    'GM': 'INT'
+    'AST' : 'INT',
+    'APG': 'DECIMAL(6, 2)',
+    'TURNOVERS' : 'INT',
+    "TOPG" : 'DECIMAL(6, 2)',
+    'GM': 'INT',
+    "BLKS" : 'INT',
+    "BKPG" : 'DECIMAL(6, 2)',
+    "ST" :  'INT',
+    "STPG" : 'DECIMAL(6, 2)',
+    'Ratio': 'DECIMAL(6, 2)',
+    "Opp_TO" : 'INT',
+    "Fouls" : 'INT',
+    "PFPG" :'DECIMAL(6, 2)',
+    "DQ" : 'INT'
+    
 }
 
 
@@ -74,7 +91,7 @@ playerStats = {
     'ST' : 'INT',
     'STPG' : 'DECIMAL(6, 2)',
     'AST' : 'INT',
-    'Turnovers' : 'INT', #this is really 'TO' - but that's a reserved keyword in sql
+    'TURNOVERS' : 'INT', #this is really 'TO' - but that's a reserved keyword in sql
     'Ratio' : 'DECIMAL(6, 2)'
 }
 

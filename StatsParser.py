@@ -38,7 +38,7 @@ def p_section(p):
     '''section : block'''
 #    print(g_date)
 #    for i in p[1]:
-#        print(i)
+#        print(i)    
     s = StatsDB.StatsDB()
     s.processBlock(p[1], g_date)
 

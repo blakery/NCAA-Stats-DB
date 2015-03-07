@@ -23,6 +23,7 @@ def main(argv):
         elif(isNCAAStatFile(fp)): 
             print("processing: " + fp)
             StatsParser.processFile(fp)
+            print(fp + " complete")
         else: print("unrecognized input") #FIXME handle this more thoroughly
 
 
