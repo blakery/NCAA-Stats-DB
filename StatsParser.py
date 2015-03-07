@@ -27,7 +27,9 @@ def p_junk(p): '''junk : date
 def p_date(p): 
     '''date : INTEGER SLASH INTEGER SLASH INTEGER'''
     global g_date      
-    # format to be recognizable to mysql
+    # format date to be recognizable to mysql
+    # In the NCAA files, it's month/day/year
+    # We need it to be Year/Month/Day
     g_date = p[5] + "/" + p[1] + "/" + p[3]
     
 

@@ -77,19 +77,15 @@ class StatsDB:
         # exclude the first column, the numerical ranking, as it's 
         #   a. a derived statistic, and 
         #   b. too variable and inconsitant to be of any use.
-        print(type(header))
-        if((len(header) < 3)):  
-            print("invalid header")
-            print(header)
+        date = "'" + date + "'"
+        if((len(header) < 3)): print("invalid header: " + str(header))
         elif(header[2] == 'Team'): 
-            print("player block")
+            print(date)
             for player in block[1:]:  
                 print(player)              
                 self.addPlayerStats(player[1:], header[1:], date)
         else:
-            print("team block")
             for team in block[1:]:
-                print(team)
                 self.addTeamStats(team[1:], header[1:], date)
 
 
@@ -109,7 +105,7 @@ class StatsDB:
             if(teamStats[headers[i]] == 'TEXT'):
                 values += ", '{}'".format(stats[i])
             else: values += ", " + stats[i]
-        
+
         cmd = "INSERT INTO TeamStats({}) VALUES({});".format(columns, values)
         self.cursor.execute(cmd)
 
@@ -170,18 +166,11 @@ class StatsDB:
         columns = "week"
         values = date
 
-        for i in range(2, len(headers)):
-            if(headers[i] == 'TO'): headers[i] = 'TURNOVERS'
-
-            columns += ", " + headers[i]
-
-            if(playerStats[headers[i]] == 'TEXT'):
-                values += ", '" + stats[i] + "'"
-            elif(headers[i] == "Ht"): 
-                values += ", " + stats[i] + "." + stats[i+1]
-                stats = stats[:i] + stats[i+1:]  #FIXME this is hidious and horribly inefficient
-            else: values += ", " + stats[i]
-            
+        for i in range(2, len(headers) -1):
+            field, val = self.__translatePlayerStats(stats, i, headers[i])
+            columns += ", " + field
+            values += ", " + val
+  
         cmd = "INSERT INTO {}({}) VALUES ({})".format(stats[0], columns, values)
         self.cursor.execute(cmd)
 
@@ -190,21 +179,30 @@ class StatsDB:
     # called by addPlayerStats() if a player already exists
     def __updatePlayerStats(self, stats, headers, date):
         cmd = "UPDATE {} \n".format(stats[0])
-        cmd += "SET {} = {}".format(headers[2], stats[2])
+        
+        field, val = self.__translatePlayerStats(stats, 2, headers[2])
+        cmd += "SET {} = {}".format(field, val)
 
-        for i in range(3, len(stats)):  
-            if(headers[i] == 'TO'): # 'TO' is a reserved keyword in sql
-                cmd += ", Turnovers = " + stats[i]
-            elif(playerStats[headers[i]] == 'TEXT'):
-                cmd += ", {} = '{}'".format(headers[i], stats[i])   
-            elif(type(stats[i]) is tuple): 
-                cmd += ", {} = {}.{}".format(headers[i], stats[0], stats[1])
-            else:
-                cmd += ", {} = {}".format(headers[i], stats[i])
+        for i in range(2, len(stats) -1):  
+            (field, val) = self.__translatePlayerStats(stats, i, headers[i])
+            cmd += ", {} = {}".format(field, val)
+        
         cmd += "\n WHERE week = {};".format(date)
         self.cursor.execute(cmd)
-        
-            
+    
+    
+    
+    def __translatePlayerStats(self, stats, index, name):
+        if(name == 'Ht'): 
+            r = (name, stats[index] + "." + stats.pop(index + 1))
+            return r
+        elif(name == 'TO'): 
+            return ('TURNOVERS', stats[index])
+        elif(playerStats[name] == 'TEXT'): 
+            return (name, "'{}'".format(stats[index]))
+        else: return (name, stats[index])
+    
+    
             
     # __createPlayerStatsTable()
     # called by __addPlayer() to initialize the table named for the player,
