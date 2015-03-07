@@ -84,10 +84,8 @@ def t_error(t):
 
 
 
-def setUpLex(fp):
+def setUpLex(data):
     lexer = lex.lex()
-    try: data = open(fp, "r")
-    except: print("Unable to open " + fp) 
     lexer.input(data.read())  
     
 
