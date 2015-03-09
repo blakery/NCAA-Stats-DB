@@ -4,21 +4,20 @@ import os
 
 
 def isNCAAStatFile(filepath):
-    return True
+    root, ext = os.path.splitext(filepath)
+    return ext == '.csv'
+     
 
 def iterate_directory(path):
 
     for dirpath, dirnames, files in os.walk(path):
         for f in files:
             if(isNCAAStatFile(f)): 
-                try: 
-                    data = open(os.path.join(dirpath,f), "r")
-                except Exception, args: 
-                    print(args) 
+                try: data = open(os.path.join(dirpath,f), "r")
+                except Exception, args: print(args) 
                 else:
                     try: StatsParser.processFile(data)
-                    except Exception, args:
-                        print(args)
+                    except Exception, args: print(args)
                     finally: data.close()
 
     

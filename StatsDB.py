@@ -80,9 +80,7 @@ class StatsDB:
         date = "'" + date + "'"
         if((len(header) < 3)): print("invalid header: " + str(header))
         elif(header[2] == 'Team'): 
-            print(date)
             for player in block[1:]:  
-                print(player)              
                 self.addPlayerStats(player[1:], header[1:], date)
         else:
             for team in block[1:]:
