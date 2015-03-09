@@ -57,7 +57,7 @@ def t_tags(t):
     r'<'
     t.lexer.begin('tags')
 
-# the t_ignore for tags means it will skip over anything in between the '<>'
+# the t_tags_ignore should skip over anything in between the '<>'
 def t_tags_end(t):
     r'<>'
     t.lexer.begin('INITIAL') 

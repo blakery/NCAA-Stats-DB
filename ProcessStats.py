@@ -28,7 +28,7 @@ def main(argv):
         if(os.path.isdir(fp)): iterate_directory(fp)
         elif(isNCAAStatFile(fp)): 
             StatsParser.processFile(fp)
-        else: print("unrecognized input") #FIXME handle this more thoroughly
+        else: print("unrecognized file type") #FIXME handle this more thoroughly
 
 
 
