@@ -37,10 +37,7 @@ def p_date(p):
 # section is just a wrapper for a finished block, 
 # in order to do operations on the completed block
 def p_section(p):
-    '''section : block'''
-#    print(g_date)
-#    for i in p[1]:
-#        print(i)    
+    '''section : block'''   
     s = StatsDB.StatsDB()
     s.processBlock(p[1], g_date)
 
@@ -75,7 +72,6 @@ def p_ranking_line(p):
     elif(len(p) == 4):
         p[0] = p[1]
         p[0].extend(p[3])
-        #p[0].append(p[3])
         
 
         
@@ -124,18 +120,18 @@ def p_integer(p):
     '''integer : INTEGER 
                | DASH INTEGER''' # negative
     if(len(p) == 2):
-        p[0] = p[1] #int(p[1])
+        p[0] = p[1] 
     elif(len(p)== 3):
-        p[0] = p[1] + p[2]#int(p[1] + p[2])
+        p[0] = p[1] + p[2]
 
 
 def p_decimal(p):
     '''decimal : DECIMAL
                 | DASH DECIMAL''' # negative
     if(len(p) == 2):
-        p[0] = p[1] #float(p[1])
+        p[0] = p[1] 
     elif(len(p)== 3):
-        p[0] = p[1] + p[2]#float(p[1] + p[2])
+        p[0] = p[1] + p[2]
               
 
 ########### END OF GRAMMAR RULES ########################

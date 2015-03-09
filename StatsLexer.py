@@ -28,7 +28,7 @@ t_ignore = '(\t| )'
 
 def t_WORD(t):
     r"[A-Za-z&][A-Za-z&'.%]*[-]?"
-    t.value = t.value.replace("'","")#t.value.strip("'.")
+    t.value = t.value.replace("'","")
     t.value = t.value.replace(".","")
     t.value = t.value.replace("-","")
     t.value = t.value.replace("&","_and_")
@@ -38,7 +38,6 @@ def t_WORD(t):
 def t_TEAM_STATE(t):
     r'\([A-Z]{2}\)'        
     t.value = ""
-#    t.value = t.value.strip("()")
     return t
         
 def t_NEWLINE(t):
