@@ -13,3 +13,8 @@ def getSQLDB():
 
 def getSQLUserName():
     return config.get('SQL', 'username')
+    
+def getSQLHost():
+    return config.get('SQL', 'host')
+    
+

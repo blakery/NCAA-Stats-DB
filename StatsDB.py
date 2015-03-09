@@ -1,4 +1,5 @@
 import MySQLdb
+import ConfigStats
 from StatsHeaders import *
 
 
@@ -54,8 +55,12 @@ class StatsDB:
 
 
 
-    def __init__(self, host="localhost", user="blake", 
+    def __init__(self, host=None, user="blake", 
                  password="", db="BracketStats"):
+        if(host is None): host=ConfigStats.getSQLHost()
+        if(user is None): user=ConfigStats.getSQLUserName()
+        if(db is None): db = ConfigStats.getSQLDB()
+        
         if(db == ""):
             self.db = MySQLdb.connect(host=host, user=user, passwd=password)
         else:
