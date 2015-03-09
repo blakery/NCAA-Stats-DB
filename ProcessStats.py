@@ -27,9 +27,7 @@ def main(argv):
     for fp in argv[1:]:
         if(os.path.isdir(fp)): iterate_directory(fp)
         elif(isNCAAStatFile(fp)): 
-            print("processing: " + fp)
             StatsParser.processFile(fp)
-            print(fp + " complete")
         else: print("unrecognized input") #FIXME handle this more thoroughly
 
 
