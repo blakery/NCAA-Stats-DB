@@ -1,5 +1,5 @@
 import MySQLdb
-import ConfigStats
+import Config
 from StatsHeaders import *
 
 
