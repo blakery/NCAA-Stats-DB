@@ -1,19 +1,19 @@
 import Tkinter as tk
 import ProcessStats
-
+import SettingsWindow
 
 class InputWindow(tk.Frame):
 
     def __init__(self, master=None):
         self.createWindow(master)
         self.populateObjects()
-        self.master.title('Process Stat Files')
+
 
 
     def createWindow(self, master):
         tk.Frame.__init__(self, master)
         self.grid()
-
+        self.master.title('Process Stat Files')
 
     def populateObjects(self):
         self.createTextEntry()
@@ -31,7 +31,7 @@ class InputWindow(tk.Frame):
         self.cancelButton.grid(row=1, column=1)
 
     def createSettingsButton(self):
-        self.settingsButton=tk.Button(self, text='Settings')
+        self.settingsButton=tk.Button(self, text='Settings', command=self.showSettings)
         self.settingsButton.grid(row=1, column=2)
 
 
@@ -49,7 +49,7 @@ class InputWindow(tk.Frame):
         else: ProcessStats.main([None, f])
 
         
-
+    def showSettings(self):
 
         
         

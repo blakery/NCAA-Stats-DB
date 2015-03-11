@@ -17,4 +17,18 @@ def getSQLUserName():
 def getSQLHost():
     return config.get('SQL', 'host')
     
+    
+    
+def setSQLDB():
+    raise NotImplementedError
+    
+def setSQLUserName():
+    raise NotImplementedError
+    
+def setSQLHost():
+    raise NotImplementedError
+
+
+
+
 
