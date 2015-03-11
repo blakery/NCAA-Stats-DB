@@ -14,6 +14,7 @@ it seemed easier to use PLY.
     PLY Python based Lex-Yacc implementation http://www.dabeaz.com/ply/ply.html
     MySQL
     MySQLdb
+    Tkiter (Python Tk interface)
 
 #Failure Conditions
  Condition | Action
