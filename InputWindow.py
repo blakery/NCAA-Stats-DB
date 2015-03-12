@@ -14,8 +14,6 @@ class InputWindow(tk.Frame):
     def createWindow(self, master):
         tk.Frame.__init__(self, master)
         self.grid()
-        #self.mainFrame=tk.Frame()
-        #self.mainFrame.grid()
         self.master.title('Process Stat Files')
 
     def populateObjects(self):
@@ -54,7 +52,7 @@ class InputWindow(tk.Frame):
         
     def showSettings(self):
         self.settings=SettingsWindow.SettingsWindow()
-        self.mainloop()
+
         
 if __name__ == '__main__':
     app = InputWindow()
