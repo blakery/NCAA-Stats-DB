@@ -19,10 +19,10 @@ def getSQLHost():
     
     
     
-def setSQLDB():
+def setSQLDB(db):
     raise NotImplementedError
     
-def setSQLUserName():
+def setSQLUserName(name):
     raise NotImplementedError
     
 def setSQLHost():
