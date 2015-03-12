@@ -1,17 +1,23 @@
-import Tkiter as tk
+import Tkinter as tk
 import Config
 
 
-class SettingsUI.py(tk.Frame):
+class SettingsWindow(tk.Toplevel):
 
-    def __init__(self, master):
-        self.createWindow(master)
-        
-   
-    def createWindow(self, master):
-        tk.Frame.__init__(self, master)
-        self.grid()
-        self.master.title('Settings')        
-        
+
     
+    def __init__(self):
+        tk.Toplevel.__init__(self)         
+        self.populateObjects()
 
+            
+    def populateObjects(self):
+        self.createSetUserNameButton()
+        
+    def createSetUserNameButton(self):
+        self.userNameButton=tk.Button(self, text="Set SQL User Name")
+        self.userNameButton.grid()
+    
+    def createSetDBButton(self):
+        pass
+       
