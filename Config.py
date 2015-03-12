@@ -25,7 +25,7 @@ def setSQLDB(db):
 def setSQLUserName(name):
     raise NotImplementedError
     
-def setSQLHost():
+def setSQLHost(host):
     raise NotImplementedError
 
 
