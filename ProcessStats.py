@@ -20,15 +20,19 @@ def iterate_directory(path):
                     except Exception, args: print(args)
                     finally: data.close()
 
-    
+
+def process(fp):
+    if(os.path.isdir(fp)): iterate_directory(fp)
+    elif(isNCAAStatFile(fp)): 
+        StatsParser.processFile(fp)
+    else: print("unrecognized file type") #FIXME handle this more thoroughly   
+
+
 
 def main(argv):
-
     for fp in argv[1:]:
-        if(os.path.isdir(fp)): iterate_directory(fp)
-        elif(isNCAAStatFile(fp)): 
-            StatsParser.processFile(fp)
-        else: print("unrecognized file type") #FIXME handle this more thoroughly
+        process(fp)
+        
 
 
 

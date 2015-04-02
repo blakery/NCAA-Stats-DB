@@ -1,7 +1,9 @@
 import Tkinter as tk
 import ProcessStats
 import SettingsWindow
-
+import StatsParser
+import sys
+import os
 
 class InputWindow(tk.Frame):
 
@@ -9,11 +11,9 @@ class InputWindow(tk.Frame):
         self.createWindow(master)
         self.populateObjects()
 
-
-
     def createWindow(self, master):
         tk.Frame.__init__(self, master)
-        self.grid()
+        self.grid(ipadx=5,ipady=5)
         self.master.title('Process Stat Files')
 
     def populateObjects(self):
@@ -29,16 +29,16 @@ class InputWindow(tk.Frame):
 
     def createCancelButton(self):
         self.cancelButton=tk.Button(self, text='Cancel', command=self.quit)
-        self.cancelButton.grid(row=1, column=1)
+        self.cancelButton.grid(row=0, column=2)
 
-    def createSettingsButton(self):
+    def createSettingsButton(self): #FIXME : change to menu option
         self.settingsButton=tk.Button(self, text='Settings', command=self.showSettings)
-        self.settingsButton.grid(row=1, column=2)
+        self.settingsButton.grid(row=1, column=1, padx=10, pady=10)
 
 
     def createTextEntry(self):
         self.textEntry=tk.Entry(self, exportselection=0, width=30)
-        self.textEntry.grid(row=0, column=0)
+        self.textEntry.grid(row=0, column=0,padx=10, pady=10)
         self.textEntry.insert(0,'Enter a filename or directory')
 
 
@@ -47,11 +47,33 @@ class InputWindow(tk.Frame):
         f = self.textEntry.get()
         # don't take any action for no entry
         if(f == 'Enter a filename or directory') | (f==''): pass
-        else: ProcessStats.main([None, f])
+        else: ProcessStats.process(f)
 
         
     def showSettings(self):
         self.settings=SettingsWindow.SettingsWindow()
+
+'''
+    # files: a list of file or directory names
+    def processStats(self, f):
+        if(os.path.isdir(f)): self.iterate_directory(f)
+        else: 
+            print("Processing " + f)
+            StatsParser.processFile(f)
+            
+      #  else: print("unrecognized file type") #FIXME handle this more thoroughly
+        
+    def iterate_directory(self, path):        
+        for dirpath, dirnames, files in os.walk(path):
+            for f in files:
+                try: data = open(os.path.join(dirpath,f), "r")
+                except Exception, args: print(args) 
+                else:
+                    print("Processing " + f)
+                    try: StatsParser.processFile(data)
+                    except Exception, args: print(args)
+                    finally: data.close()
+'''
 
         
 if __name__ == '__main__':
