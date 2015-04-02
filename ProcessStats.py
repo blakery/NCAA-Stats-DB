@@ -13,12 +13,13 @@ def iterate_directory(path):
     for dirpath, dirnames, files in os.walk(path):
         for f in files:
             if(isNCAAStatFile(f)): 
-                try: data = open(os.path.join(dirpath,f), "r")
-                except Exception, args: print(args) 
-                else:
-                    try: StatsParser.processFile(data)
-                    except Exception, args: print(args)
-                    finally: data.close()
+                try: 
+                    data = open(os.path.join(dirpath,f), "r")
+                except Exception, args: print(args)
+                else: StatsParser.processFile(data)      
+                finally: data.close()
+
+
 
 
 def process(fp):
@@ -33,9 +34,6 @@ def main(argv):
     for fp in argv[1:]:
         process(fp)
         
-
-
-
 
 
 
