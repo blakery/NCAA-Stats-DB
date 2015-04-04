@@ -48,7 +48,7 @@ class CSVStatsReader:
     def formatData(self, row):
         final = []
         for element in row:
-            # for W-L and int - int, separate
+            # for W-L and int - int, separate into two elements
             if element == 'W-L':
                 final.append('W')
                 final.append('L')
@@ -57,6 +57,7 @@ class CSVStatsReader:
             elif element == 'NR': final.append('')
             # don't replace decimal points
             elif re.match(r'\d+\.\d+', element): final.append(element)
+            # get rid of any other troublesome characters
             else: 
                 def elemRepl(match):
                     if match.group(0) == ' ': return '_'
