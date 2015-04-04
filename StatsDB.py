@@ -54,7 +54,7 @@ class StatsDB:
 
 
 
-
+    #FIXME: create database if it doesn't exist
     def __init__(self, host=None, user="blake", 
                  password="", db="BracketStats"):
         if(host is None): host=Config.getSQLHost()
@@ -89,11 +89,8 @@ class StatsDB:
                 self.addPlayerStats(player[1:], header[1:], date)
         else:
             for team in block[1:]:
-                try:
-                    self.addTeamStats(team[1:], header[1:], date)
-                except Exception, args: 
-                    print("Failed: " + str(args) + "\n" + str(header) +
-                        "\n" + str(team))
+                self.addTeamStats(team[1:], header[1:], date)
+
 
 
     # teamStats is a list consisting of: [team name, stats...]
@@ -113,8 +110,8 @@ class StatsDB:
             else: values += ", " + stats[i]
 
         cmd = "INSERT INTO TeamStats({}) VALUES({});".format(columns, values)
-        try : self.cursor.execute(cmd)
-        except: print("Sql rejected:\n" + cmd)
+        self.cursor.execute(cmd)
+
         
         
         
@@ -122,11 +119,9 @@ class StatsDB:
         self.cursor.execute(
             "SELECT * FROM teams WHERE name = '{}';".format(school))
         if(len(self.cursor.fetchall()) == 0): 
-            try:
-                self.cursor.execute(
-                    "INSERT INTO teams (name) VALUES ('{}');".format(school))
-                self.__createTeamRosterTable(school)
-            except: print("failed to create table for: " + school)
+            self.cursor.execute(
+                "INSERT INTO teams (name) VALUES ('{}');".format(school))
+            self.__createTeamRosterTable(school)
         else: pass
 
 

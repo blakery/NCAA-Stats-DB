@@ -9,7 +9,7 @@ class CSVStatsReader:
 
     def __init__(self, csvfile):
         self.db = StatsDB.StatsDB()
-       
+        
         with open(csvfile) as f:
             self.date = self.convertDate(self.getDate(f))
 
