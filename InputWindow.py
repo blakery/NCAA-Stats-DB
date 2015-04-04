@@ -1,7 +1,6 @@
 import Tkinter as tk
 import ProcessStats
 import SettingsWindow
-import StatsParser
 import sys
 import os
 

@@ -1,4 +1,5 @@
 import StatsParser
+import CSVStats
 import sys
 import os
 
@@ -6,26 +7,21 @@ import os
 def isNCAAStatFile(filepath):
     root, ext = os.path.splitext(filepath)
     return ext == '.csv'
-     
+    
 
 def iterate_directory(path):
 
     for dirpath, dirnames, files in os.walk(path):
         for f in files:
             if(isNCAAStatFile(f)): 
-                try: 
-                    data = open(os.path.join(dirpath,f), "r")
-                except Exception, args: print(args)
-                else: StatsParser.processFile(data)      
-                finally: data.close()
-
+                CSVStats.CSVStatsReader(os.path.join(dirpath,f))
 
 
 
 def process(fp):
     if(os.path.isdir(fp)): iterate_directory(fp)
     elif(isNCAAStatFile(fp)): 
-        StatsParser.processFile(fp)
+        CSVStats.CSVStatsReader(fp)
     else: print("unrecognized file type") #FIXME handle this more thoroughly   
 
 
