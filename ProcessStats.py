@@ -1,4 +1,3 @@
-import StatsParser
 import CSVStats
 import sys
 import os
