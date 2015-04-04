@@ -23,6 +23,8 @@ teamStats = {
     'OPP_FG'  : 'INT',
     'OPP_FGA' : 'INT',  
     'OPP_FG_PERCENTAGE' : 'DECIMAL(6, 2)',
+    'Opp_3FGA' : 'INT', # of course here is the one thing they don't capitalize consitently
+    'Opp_3FG' : 'INT',
     '3FG' : 'INT', 
     '3PG' : 'DECIMAL(6, 2)', 
     '3FGA' : 'INT',
