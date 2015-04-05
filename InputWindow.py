@@ -37,17 +37,22 @@ class InputWindow(tk.Frame):
 
 
     def createTextEntry(self):
-        self.textEntry=tk.Entry(self, exportselection=0, width=30)
+        self.entryVariable = tk.StringVar()
+        self.entryVariable.set('Enter a filename or directory')
+        self.textEntry=tk.Entry(self, exportselection=0, width=30, 
+            textvariable=self.entryVariable)
+
         self.textEntry.grid(row=0, column=0,padx=10, pady=10)
-        self.textEntry.insert(0,'Enter a filename or directory')
+
 
 
     def submitFile(self):
-        f = self.textEntry.get()
+        f = self.entryVariable.get()
         # don't take any action for no entry
         if(f == 'Enter a filename or directory') | (f==''): pass
-        else: ProcessStats.process(f)
-
+        else: 
+            ProcessStats.process(f)
+            self.entryVariable.set('Enter a filename or directory')
         
     def showSettings(self):
         self.settings=SettingsWindow.SettingsWindow()

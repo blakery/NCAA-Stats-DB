@@ -16,7 +16,6 @@ def iterate_directory(path):
                 CSVStats.CSVStatsReader(os.path.join(dirpath,f))
 
 
-
 def process(fp):
     if(os.path.isdir(fp)): iterate_directory(fp)
     elif(isNCAAStatFile(fp)): 
