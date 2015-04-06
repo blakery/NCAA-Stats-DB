@@ -1,4 +1,4 @@
-import CSVStats
+import statsinput.CSVStats
 import sys
 import os
 

@@ -2,7 +2,7 @@ import csv
 import sys
 import os
 import re
-import StatsDB
+import statsinput.StatsDB
 
 
 class CSVStatsReader:
