@@ -1,5 +1,5 @@
 import Tkinter as tk
-import statsinput.ProcessStats
+import ProcessStats
 import SettingsWindow
 import sys
 import os

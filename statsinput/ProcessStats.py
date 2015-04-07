@@ -1,4 +1,8 @@
-import statsinput.CSVStats
+"""
+
+
+"""
+import CSVStats
 import sys
 import os
 
