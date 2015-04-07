@@ -24,7 +24,7 @@ def process(fp):
     if(os.path.isdir(fp)): iterate_directory(fp)
     elif(isNCAAStatFile(fp)): 
         CSVStats.CSVStatsReader(fp)
-    else: print("unrecognized file type") #FIXME handle this more thoroughly   
+    else: print("unrecognized file type") #TODO handle this more thoroughly   
 
 
 
