@@ -68,26 +68,26 @@ class StatsDB(object):
         _db -- database connection returned by MySQLdb.connect()
         cursor -- cursor object returned by _db.connect()
     """
+#DatabaseError
 
-
-    #TODO: create database if it doesn't exist
-    def __init__(self, host=None, user="blake",
-                 password="", db="BracketStats"):
+    def __init__(self, host=None, user=None,
+                 password="", db=None):
         if host is None:
             host = Config.getSQLHost()
         if user is None:
             user = Config.getSQLUserName()
         if db is None:
             db = Config.getSQLDB()
-        if db == "":
-            self._db = MySQLdb.connect(host=host, user=user, passwd=password)
-        else:
+        try:
             self._db = MySQLdb.connect(host=host, user=user,
-                passwd=password, db=db)
-        self.cursor = self._db.cursor()
+                                       passwd=password, db=db)
+        except OperationalError, args:
+            print args
+        else:
+            self.cursor = self._db.cursor()
 
-        self.create_teams_table()
-        self.create_team_stats_table()
+            self._create_teams_table()
+            self._create_team_stats_table()
 
 
     def process_block(self, block, date):
@@ -105,13 +105,13 @@ class StatsDB(object):
             print "invalid header: " + str(header)
         elif header[2] == 'Team':
             for player in block[1:]:
-                self.add_player_stats(player[1:], header[1:], date)
+                self._add_player_stats(player[1:], header[1:], date)
         else:
             for team in block[1:]:
-                self.add_team_stats(team[1:], header[1:], date)
+                self._add_team_stats(team[1:], header[1:], date)
 
 
-    def add_team_stats(self, stats, headers, date):
+    def _add_team_stats(self, stats, headers, date):
         """
         add team statistics to the TeamStats table
         stats is a list consisting of: [team name, stats...]
@@ -153,7 +153,7 @@ class StatsDB(object):
 
 
 
-    def add_player_stats(self, stats, headers, date):
+    def _add_player_stats(self, stats, headers, date):
         """
         Add player stats to the sql database
         stats is a list in the form of [name, school, stats...]
@@ -222,7 +222,7 @@ class StatsDB(object):
         """
         try:
             self.cursor.execute("SELECT * FROM {};".format(player))
-        except:
+        except MySQLdb.Error:
             cmd = "CREATE TABLE " + player + "("
             fields = stats_headers.PLAYER_STATS.items()
             for (name, value) in fields:
@@ -232,20 +232,20 @@ class StatsDB(object):
 
 
 
-    def create_teams_table(self):
+    def _create_teams_table(self):
         """create the global teams table"""
         try:
             self.cursor.execute("SELECT * FROM teams;")
-        except:
+        except MySQLdb.Error:
             self.cursor.execute("CREATE TABLE teams(name TEXT);")
             self._db.commit()
 
 
-    def create_team_stats_table(self):
+    def _create_team_stats_table(self):
         """create the global teamstats table"""
         try:
             self.cursor.execute("SELECT * FROM TeamStats;")
-        except:
+        except MySQLdb.Error:
             cmd = "CREATE TABLE TeamStats("
             fields = stats_headers.TEAM_STATS.items()
             cmd += fields[0][0] + " " + fields[0][1]
@@ -253,6 +253,7 @@ class StatsDB(object):
                 cmd += ", " + name + " " + value
             cmd += ");"
             self.cursor.execute(cmd)
+
 
     def execute(self, cmd):
         """
