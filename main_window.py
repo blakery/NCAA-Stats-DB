@@ -2,7 +2,7 @@
 main window for the ui. right now, it just calls inputwindow
 """
 import Tkinter as tk
-import inputwindow
+import input_window
 import settings_window
 
 
