@@ -20,13 +20,12 @@ class SettingsWindow(tk.Frame):
         self.set_host_button = None
         self.user_name_entry = None
         self.host_entry = None
+        self.cancel_button = None
 
         self.parent = tk.Toplevel()
         tk.Frame.__init__(self, self.parent)
-
         self._populate_objects()
         self.grid()
-
 
 
     def _populate_objects(self):
@@ -34,7 +33,7 @@ class SettingsWindow(tk.Frame):
         self._create_set_user_name_option()
         self._create_set_db_option()
         self._create_set_host_option()
-
+        self._create_cancel_button()
 
     def _create_set_user_name_option(self):
         """create the field and button to set the user name """
@@ -67,6 +66,11 @@ class SettingsWindow(tk.Frame):
         self.host_entry.grid(row=3, column=1)
         self.host_entry.insert(0, Config.getSQLHost())
 
+    def _create_cancel_button(self):
+        """self-explanatory"""
+        self.cancel_button = tk.Button(self, command=self.parent.destroy, 
+            text="Cancel", anchor=tk.W, justify=tk.LEFT)
+        self.cancel_button.grid(row=4, column=0)
 
     def _set_user_name_submit(self):
         """ called when someone clicks the button to submit a change
@@ -75,7 +79,8 @@ class SettingsWindow(tk.Frame):
         text = self.user_name_entry.get()
         if text == Config.getSQLUserName():
             pass
-        else: Config.setSQLUserName(text)
+        else:
+            Config.setSQLUserName(text)
 
 
     def _set_db_submit(self):
@@ -85,7 +90,8 @@ class SettingsWindow(tk.Frame):
         text = self.db_entry.get()
         if text == Config.getSQLDB():
             pass
-        else: Config.setSQLDB(text)
+        else:
+            Config.setSQLDB(text)
 
 
     def _set_host_submit(self):
@@ -95,5 +101,6 @@ class SettingsWindow(tk.Frame):
         text = self.host_entry.get()
         if text == Config.getSQLHost():
             pass
-        else: Config.setSQLHost(text)
+        else:
+            Config.setSQLHost(text)
 

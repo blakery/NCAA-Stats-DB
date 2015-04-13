@@ -9,9 +9,7 @@ import settings_window
 class MainWindow(tk.Frame):
     """The main window
     to implement:
-        input button => input window
         output button => output window
-        settings button => settings window
     """
 
     def __init__(self, master=None):
@@ -35,7 +33,6 @@ class MainWindow(tk.Frame):
         self._create_input_window_button()
         self._create_quit_button()
 
-
     def _create_quit_button(self):
         """self-explanitory"""
         self.cancel_button = tk.Button(self, text='Quit', command=self.quit,
@@ -57,7 +54,7 @@ class MainWindow(tk.Frame):
 
     def open_input_window(self):
         """open an InputWindow"""
-        self.input_window = inputwindow.InputWindow()
+        self.input_window = input_window.InputWindow()
 
     def show_settings(self):
         """bring up the settings window"""
