@@ -4,7 +4,7 @@ main window for the ui. right now, it just calls inputwindow
 import Tkinter as tk
 import input_window
 import settings_window
-
+import output_window
 
 class MainWindow(tk.Frame):
     """The main window
@@ -19,6 +19,8 @@ class MainWindow(tk.Frame):
         self.input_window = None
         self.input_window_button = None
         self.quit_button = None
+        self.output_window = None
+        self.output_window_button = None
         self._create_window(master)
         self._populate()
 
@@ -32,12 +34,7 @@ class MainWindow(tk.Frame):
         self._create_settings_button()
         self._create_input_window_button()
         self._create_quit_button()
-
-    def _create_quit_button(self):
-        """self-explanitory"""
-        self.cancel_button = tk.Button(self, text='Quit', command=self.quit,
-                                       width=6)
-        self.cancel_button.grid(row=2, column=2, padx=10, pady=10)
+        self._create_output_button()
 
     def _create_input_window_button(self):
         """self-explanitory"""
@@ -51,6 +48,21 @@ class MainWindow(tk.Frame):
                                       command=self.show_settings)
         self.settings_button.grid(row=1, column=2, padx=10, pady=10)
 
+    def _create_quit_button(self):
+        """self-explanitory"""
+        self.cancel_button = tk.Button(self, text='Quit', command=self.quit,
+                                       width=6)
+        self.cancel_button.grid(row=2, column=2, padx=10, pady=10)
+
+    def _create_output_button(self):
+        """self-explanitory"""
+        self.output_button = tk.Button(self, text='Output', 
+            command=self._open_output_window)
+        self.output_button.grid(row=2, column=1, padx=10, pady=10)
+
+    def _open_output_window(self):
+        """open an OutputWindow"""
+        self.output_window = output_window.OutputWindow()
 
     def open_input_window(self):
         """open an InputWindow"""
@@ -60,6 +72,7 @@ class MainWindow(tk.Frame):
         """bring up the settings window"""
         self.settings = settings_window.SettingsWindow()
 
+
 if __name__ == '__main__':
-    App = MainWindow()
-    App.mainloop()
+    APP = MainWindow()
+    APP.mainloop()

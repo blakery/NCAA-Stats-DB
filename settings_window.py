@@ -7,7 +7,7 @@ import Config
 
 class SettingsWindow(tk.Frame):
 #tk.Frame gives us a ton of public methods. so:
-#pylint: disable=too-many-public-methods
+#pylint: disable=too-many-public-methods, too-many-instance-attributes
     """ Interface to change settings.
         Users can change:
         mysql username, database, and host
@@ -68,7 +68,7 @@ class SettingsWindow(tk.Frame):
 
     def _create_cancel_button(self):
         """self-explanatory"""
-        self.cancel_button = tk.Button(self, command=self.parent.destroy, 
+        self.cancel_button = tk.Button(self, command=self.parent.destroy,
             text="Cancel", anchor=tk.W, justify=tk.LEFT)
         self.cancel_button.grid(row=4, column=0)
 

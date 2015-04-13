@@ -1,4 +1,4 @@
-"""ui for inputting csv stat files"""
+"""Interface for inputting stat files"""
 import Tkinter as tk
 import ProcessStats
 
@@ -7,7 +7,7 @@ class InputWindow(tk.Frame):
 #tk.Frame gives us a ton of public methods. so:
 #pylint: disable=too-many-public-methods
 
-    """ui for inputting csv stat files"""
+    """Window for the interface for inputting stat files"""
 
     def __init__(self):
         #Attributes:
