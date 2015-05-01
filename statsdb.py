@@ -43,17 +43,55 @@ import Config
 import stats_headers
 
 
+
+def translate_team_stats(stats, index, name):
+    """
+    called return the sql name and data type of the name as it's
+    listed in the ncaa stats files
+    """
+    if stats[index] is None:
+        return None
+    elif stats[index] == '':
+        return None
+    elif name == 'TO':
+        return ('TURNOVERS', stats[index])
+    elif stats_headers.TEAM_STATS[name] == 'TEXT':
+        return (name, "'{}'".format(stats[index]))
+
+    else: return (name, stats[index])
+
+
 def translate_player_stats(stats, index, name):
     """
     called return the sql name and data type of the name as it's
     listed in the ncaa stats files
     """
-    if name == 'Ht':
+    if stats[index] is None:
+        return None
+    elif stats[index] == '':
+        return None
+    elif name == 'Ht':
         return (name, stats[index] + "." + stats.pop(index + 1))
     elif name == 'TO':
         return ('TURNOVERS', stats[index])
+    # they changed OPP_REB to ORebs and REB to DRebs 
+    # a couple years back for some reason
+    elif name == 'ORebs':
+        return translate_player_stats(stats, index, 'OPP_REB')
+    elif name == 'DRebs':
+        return translate_player_stats(stats, index, 'REB')
+    # For the truly broken or incomprehensible stuff, return None
+    elif name == 'Dbl_Dbl':
+        return None
+    elif name == 'MP':
+        return None
+    elif name == 'MPG':
+        return None
+    elif name == 'Trpl_Dbl':
+        return None
     elif stats_headers.PLAYER_STATS[name] == 'TEXT':
         return (name, "'{}'".format(stats[index]))
+
     else: return (name, stats[index])
 
 
@@ -68,7 +106,6 @@ class StatsDB(object):
         _db -- database connection returned by MySQLdb.connect()
         cursor -- cursor object returned by _db.connect()
     """
-#DatabaseError
 
     def __init__(self, host=None, user=None,
                  password="", db=None):
@@ -105,7 +142,16 @@ class StatsDB(object):
             print "invalid header: " + str(header)
         elif header[2] == 'Team':
             for player in block[1:]:
-                self._add_player_stats(player[1:], header[1:], date)
+                try:
+                    self._add_player_stats(player[1:], header[1:], date)
+                except MySQLdb.ProgrammingError, args:
+                    print args
+                    print date
+                    print header
+                    print player
+                except KeyError, args:
+                    pass
+                    #print date + ": " + str(args)
         else:
             for team in block[1:]:
                 self._add_team_stats(team[1:], header[1:], date)
@@ -121,13 +167,13 @@ class StatsDB(object):
         values = date
 
         for i in range(len(headers)):
-            if headers[i] == 'TO':
-                headers[i] = 'TURNOVERS'
-            columns += ", " + headers[i]
-            if stats_headers.TEAM_STATS[headers[i]] == 'TEXT':
-                values += ", '{}'".format(stats[i])
+            trans = translate_team_stats(stats, i, headers[i])
+            if trans is None:
+                pass
             else:
-                values += ", " + stats[i]
+                field, val = trans
+                columns += ", " + field
+                values += ", " + val
         cmd = "INSERT INTO TeamStats({}) VALUES({});".format(columns, values)
         self.cursor.execute(cmd)
 
@@ -194,22 +240,39 @@ class StatsDB(object):
         values = date
 
         for i in range(2, len(headers) -1):
-            field, val = translate_player_stats(stats, i, headers[i])
-            columns += ", " + field
-            values += ", " + val
+            trans = translate_player_stats(stats, i, headers[i])
+            if trans is None:
+                pass
+            else:
+                field, val = trans
+                columns += ", " + field
+                values += ", " + val
         cmd = "INSERT INTO {}({}) VALUES ({})".format(stats[0], columns, values)
         self.cursor.execute(cmd)
 
 
     def _update_player_stats(self, stats, headers, date):
         """called by add_player_stats() to update an existing player"""
+        
         cmd = "UPDATE {} \n".format(stats[0])
-        field, val = translate_player_stats(stats, 2, headers[2])
+        
+        # get a valid value to start
+        trans = translate_player_stats(stats, 2, headers[2])
+        while trans is None:
+            headers = headers[1:]
+            stats = stats[1:]
+            trans = translate_player_stats(stats, 2, headers[2])
+
+        field, val = trans
         cmd += "SET {} = {}".format(field, val)
 
         for i in range(2, len(stats) -1):
-            (field, val) = translate_player_stats(stats, i, headers[i])
-            cmd += ", {} = {}".format(field, val)
+            trans = translate_player_stats(stats, i, headers[i])
+            if trans is None: 
+                pass
+            else:
+                field, val = trans
+                cmd += ", {} = {}".format(field, val)
 
         cmd += "\n WHERE week = {};".format(date)
         self.cursor.execute(cmd)
