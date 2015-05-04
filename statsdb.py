@@ -292,7 +292,7 @@ class StatsDB(object):
 
     def _create_player_stats_table(self, player):
         """
-        called by _addPlayer() to initialize the table named for the player,
+        called by _add_player() to initialize the table named for the player,
         consisting of all of their stats keyed by week
         """
         try:
@@ -329,10 +329,3 @@ class StatsDB(object):
             cmd += ");"
             self.cursor.execute(cmd)
 
-
-    def execute(self, cmd):
-        """
-        a wrapper for cursor.execute(), used primarily for tests.
-        this may go away at some point
-        """
-        self.cursor.execute(cmd)
