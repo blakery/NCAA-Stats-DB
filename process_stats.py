@@ -116,4 +116,4 @@ def process(filepath):
 
 
 if __name__ == "__main__":
-    process_csv_file(sys.argv[1])
+    process(sys.argv[1])
