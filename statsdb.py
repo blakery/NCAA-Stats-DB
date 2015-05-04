@@ -55,15 +55,8 @@ def translate_team_stats(stats, index, name):
         return None
     elif name == 'TO':
         return ('TURNOVERS', stats[index])
-    elif name == 'ORebs':
-        return None
-    elif name == 'DRebs':
-        return None
-    elif name == 'Opp_FT':
-        return None
-    elif name == 'FOPPPTS':
-        return None
-    elif name == 'FFPPG':
+    elif name == 'ORebs' or name == 'DRebs' or name == 'Opp_FT' \
+        or name == 'FOPPPTS' or name == 'FFPPG':
         return None
     elif stats_headers.TEAM_STATS[name] == 'TEXT':
         return (name, "'{}'".format(stats[index]))
@@ -75,30 +68,18 @@ def translate_player_stats(stats, index, name):
     called return the sql name and data type of the name as it's
     listed in the ncaa stats files
     """
-    if stats[index] is None:
-        return None
-    elif stats[index] == '':
+    if stats[index] is None or stats[index] == '':
         return None
     elif name == 'Ht':
         return (name, stats[index] + "." + stats.pop(index + 1))
     elif name == 'TO':              #'TO' is a reserved keyword in sql
         return ('TURNOVERS', stats[index])
-    elif name == 'ORebs':
-        return None
-    elif name == 'DRebs':
-        return None
     # For the truly broken or incomprehensible stuff, return None
-    elif name == 'Dbl_Dbl':
-        return None
-    elif name == 'MP':
-        return None
-    elif name == 'MPG':
-        return None
-    elif name == 'Trpl_Dbl':
+    elif name == 'ORebs' or name == 'DRebs' or name == 'Dbl_Dbl' or \
+        name == 'MP' or name == 'MPG' or name == 'Trpl_Dbl':
         return None
     elif stats_headers.PLAYER_STATS[name] == 'TEXT':
         return (name, "'{}'".format(stats[index]))
-
     else: return (name, stats[index])
 
 
@@ -125,7 +106,7 @@ class StatsDB(object):
         try:
             self._db = MySQLdb.connect(host=host, user=user,
                                        passwd=password, db=db)
-        except OperationalError, args:
+        except MySQLdb.OperationalError, args:
             print args
         else:
             self.cursor = self._db.cursor()
@@ -139,20 +120,15 @@ class StatsDB(object):
             return
         header = block[0]
         # player stats always have "Team" as the name of the 3rd column;
-        # team stats do not
-        # exclude the first column, the numerical ranking, as it's
-        #   a. a derived statistic, and
-        #   b. too variable and inconsitant to be of any use.
-        # date = "'" + date + "'"
+        # team stats do not. exclude the first column, the numerical ranking
         if len(header) < 3:
             print "invalid header: " + str(header)
         elif header[2] == 'Team':
             for player in block[1:]:
                 try:
-                    self._add_player_stats(player[1:], header[1:], date)
+                    self.add_player_stats(player[1:], header[1:], date)
                 except MySQLdb.ProgrammingError, args:
-                    print args
-                    print date
+                    print args + ": " + date
                     print header
                     print player
                 except KeyError, args:
@@ -160,17 +136,16 @@ class StatsDB(object):
         else:
             for team in block[1:]:
                 try:
-                    self._add_team_stats(team[1:], header[1:], date)
+                    self.add_team_stats(team[1:], header[1:], date)
                 except MySQLdb.ProgrammingError, args:
-                    print args
-                    print date
+                    print args + ": " + date
                     print header
                     print team
                 except KeyError, args:
                     print "Key error: " + date + ": " + str(args)
 
 
-    def _add_team_stats(self, stats, headers, date):
+    def add_team_stats(self, stats, headers, date):
         """
         add team statistics to the TeamStats table
         stats is a list consisting of: [team name, stats...]
@@ -212,7 +187,7 @@ class StatsDB(object):
 
 
 
-    def _add_player_stats(self, stats, headers, date):
+    def add_player_stats(self, stats, headers, date):
         """
         Add player stats to the sql database
         stats is a list in the form of [name, school, stats...]
@@ -248,9 +223,9 @@ class StatsDB(object):
 
     def _update_player_stats(self, stats, headers, date):
         """called by add_player_stats() to update an existing player"""
-        
+
         cmd = "UPDATE {} \n".format(stats[0])
-        
+
         # get a valid value to start
         trans = translate_player_stats(stats, 2, headers[2])
         while trans is None:
@@ -263,7 +238,7 @@ class StatsDB(object):
 
         for i in range(2, len(stats) -1):
             trans = translate_player_stats(stats, i, headers[i])
-            if trans is None: 
+            if trans is None:
                 pass
             else:
                 field, val = trans
