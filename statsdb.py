@@ -177,14 +177,9 @@ class StatsDB(object):
         if len(self.cursor.fetchall()) == 0:
             self.cursor.execute(
                 "INSERT INTO teams (name) VALUES ('{}');".format(school))
-            self._create_team_roster_table(school)
+            self.cursor.execute(
+                "CREATE TABLE {}(player TEXT, ht DECIMAL(6, 2));".format(school))
         else: pass
-
-    def _create_team_roster_table(self, school):
-        """create the roster table for the team passed as 'school'"""
-        self.cursor.execute(
-            "CREATE TABLE {}(player TEXT, ht DECIMAL(6, 2));".format(school))
-
 
 
     def add_player_stats(self, stats, headers, date):
