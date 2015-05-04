@@ -218,7 +218,8 @@ class StatsDB(object):
         stats is a list in the form of [name, school, stats...]
         headers is a list of the corresponding column names
         """
-        self._add_player(stats[0], stats[1])
+        self._add_team(stats[1])
+        self._create_player_stats_table(stats[0])
         self.cursor.execute(
             "SELECT * FROM {} WHERE week = {};".format(stats[0], date))
         if len(self.cursor.fetchall()) == 0:
@@ -226,24 +227,6 @@ class StatsDB(object):
         else:
             self._update_player_stats(stats, headers, date)
 
-
-    def _add_player(self, player, school):
-        """
-        called by add_player_stats()
-        checks to see if the player named is already listed.
-        if not, adds the player to the school's roster and creates a table
-        for the player's stats.
-        """
-        self._add_team(school)
-        self.cursor.execute(
-            "SELECT * FROM {} WHERE player = '{}';".format(school, player))
-        if len(self.cursor.fetchall()) == 0:
-            self.cursor.execute(
-                "INSERT INTO {}(player) VALUES('{}');".
-                format(school, player))
-            self._create_player_stats_table(player)
-            self._db.commit()
-        else: pass
 
 
     def _add_new_player_stats(self, stats, headers, date):
@@ -304,7 +287,7 @@ class StatsDB(object):
                 cmd += name + " " + value + ", \n"
             cmd += "PRIMARY KEY (week));"
             self.cursor.execute(cmd)
-
+            self._db.commit()
 
 
     def _create_teams_table(self):
