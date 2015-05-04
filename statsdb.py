@@ -55,9 +55,18 @@ def translate_team_stats(stats, index, name):
         return None
     elif name == 'TO':
         return ('TURNOVERS', stats[index])
+    elif name == 'ORebs':
+        return None
+    elif name == 'DRebs':
+        return None
+    elif name == 'Opp_FT':
+        return None
+    elif name == 'FOPPPTS':
+        return None
+    elif name == 'FFPPG':
+        return None
     elif stats_headers.TEAM_STATS[name] == 'TEXT':
         return (name, "'{}'".format(stats[index]))
-
     else: return (name, stats[index])
 
 
@@ -72,14 +81,12 @@ def translate_player_stats(stats, index, name):
         return None
     elif name == 'Ht':
         return (name, stats[index] + "." + stats.pop(index + 1))
-    elif name == 'TO':
+    elif name == 'TO':              #'TO' is a reserved keyword in sql
         return ('TURNOVERS', stats[index])
-    # they changed OPP_REB to ORebs and REB to DRebs 
-    # a couple years back for some reason
     elif name == 'ORebs':
-        return translate_player_stats(stats, index, 'OPP_REB')
+        return None
     elif name == 'DRebs':
-        return translate_player_stats(stats, index, 'REB')
+        return None
     # For the truly broken or incomprehensible stuff, return None
     elif name == 'Dbl_Dbl':
         return None
@@ -122,7 +129,6 @@ class StatsDB(object):
             print args
         else:
             self.cursor = self._db.cursor()
-
             self._create_teams_table()
             self._create_team_stats_table()
 
@@ -150,11 +156,18 @@ class StatsDB(object):
                     print header
                     print player
                 except KeyError, args:
-                    pass
-                    #print date + ": " + str(args)
+                    print "Key error: " + date + ": " + str(args)
         else:
             for team in block[1:]:
-                self._add_team_stats(team[1:], header[1:], date)
+                try:
+                    self._add_team_stats(team[1:], header[1:], date)
+                except MySQLdb.ProgrammingError, args:
+                    print args
+                    print date
+                    print header
+                    print team
+                except KeyError, args:
+                    print "Key error: " + date + ": " + str(args)
 
 
     def _add_team_stats(self, stats, headers, date):
@@ -206,7 +219,6 @@ class StatsDB(object):
         headers is a list of the corresponding column names
         """
         self._add_player(stats[0], stats[1])
-
         self.cursor.execute(
             "SELECT * FROM {} WHERE week = {};".format(stats[0], date))
         if len(self.cursor.fetchall()) == 0:
@@ -217,7 +229,7 @@ class StatsDB(object):
 
     def _add_player(self, player, school):
         """
-        called by add_player_stats() each time it executes
+        called by add_player_stats()
         checks to see if the player named is already listed.
         if not, adds the player to the school's roster and creates a table
         for the player's stats.

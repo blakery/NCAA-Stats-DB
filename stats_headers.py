@@ -77,6 +77,7 @@ PLAYER_STATS = {
     'FTA' : 'INT',
     'FT_PERCENTAGE' : 'DECIMAL(6, 2)',
     'REB' :'INT',
+    'OPP_REB': 'INT',
     'RPG' : 'DECIMAL(6, 2)',
     'AST' : 'INT',
     'APG' : 'DECIMAL(6, 2)',
@@ -84,7 +85,7 @@ PLAYER_STATS = {
     'BKPG' : 'DECIMAL(6, 2)',
     'ST' : 'INT',
     'STPG' : 'DECIMAL(6, 2)',
-    'TURNOVERS' : 'INT', #'TO' is a reserved keyword in sql
+    'TURNOVERS' : 'INT', 
     'Ratio' : 'DECIMAL(6, 2)'
 }
 
