@@ -49,18 +49,17 @@ def translate_team_stats(stats, index, name):
     called return the sql name and data type of the name as it's
     listed in the ncaa stats files
     """
-    if stats[index] is None:
-        return None
-    elif stats[index] == '':
+    stat_val = stats[index]
+    if stat_val is None or stat_val == '':
         return None
     elif name == 'TO':
-        return ('TURNOVERS', stats[index])
+        return ('TURNOVERS', stat_val)
     elif name == 'ORebs' or name == 'DRebs' or name == 'Opp_FT' \
         or name == 'FOPPPTS' or name == 'FFPPG':
         return None
     elif stats_headers.TEAM_STATS[name] == 'TEXT':
-        return (name, "'{}'".format(stats[index]))
-    else: return (name, stats[index])
+        return (name, "'{}'".format(stat_val))
+    else: return (name, stat_val)
 
 
 def translate_player_stats(stats, index, name):
@@ -68,10 +67,11 @@ def translate_player_stats(stats, index, name):
     called return the sql name and data type of the name as it's
     listed in the ncaa stats files
     """
-    if stats[index] is None or stats[index] == '':
+    stat_val = stats[index]
+    if stat_val is None or stat_val == '':
         return None
     elif name == 'Ht':
-        return (name, stats[index] + "." + stats.pop(index + 1))
+        return (name, stat_val + "." + stats.pop(index + 1))
     elif name == 'TO':              #'TO' is a reserved keyword in sql
         return ('TURNOVERS', stats[index])
     # For the truly broken or incomprehensible stuff, return None
@@ -79,8 +79,8 @@ def translate_player_stats(stats, index, name):
         name == 'MP' or name == 'MPG' or name == 'Trpl_Dbl':
         return None
     elif stats_headers.PLAYER_STATS[name] == 'TEXT':
-        return (name, "'{}'".format(stats[index]))
-    else: return (name, stats[index])
+        return (name, "'{}'".format(stat_val))
+    else: return (name, stat_val)
 
 
 
