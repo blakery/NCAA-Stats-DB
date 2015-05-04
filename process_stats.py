@@ -2,10 +2,10 @@
 process ncaa basketball stats from a csv file
 """
 import csv
-import sys
 import re
 import statsdb
-
+import sys
+import os
 
 def convert_date(old_date):
     """convert the date from the format NCAA uses to one acceptable to mysql
@@ -84,6 +84,34 @@ def process_csv_file(csvfile):
         reader = csv.reader(infile)
         rows = read_stats(reader)
         process_stats(rows, date, database)
+
+
+
+def is_ncaa_stat_file(filepath):
+    """
+    check to see if the file is an ncaa stat file.
+    right now it just checks for the csv extension
+    """
+    root, ext = os.path.splitext(filepath)
+    return ext == '.csv'
+
+
+def iterate_directory(path):
+    """run through all the entries in path and process the csv files"""
+    for dirpath, dirnames, files in os.walk(path):
+        for filepath in files:
+            if is_ncaa_stat_file(filepath):
+                process_csv_file(os.path.join(dirpath, filepath))
+
+
+def process(filepath):
+    """main entry point for a string that is a filename or dirname"""
+    if os.path.isdir(filepath):
+        iterate_directory(filepath)
+    elif is_ncaa_stat_file(filepath):
+        process_csv_file(filepath)
+    else: print "unrecognized file type"
+
 
 
 

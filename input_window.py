@@ -1,6 +1,6 @@
 """Interface for inputting stat files"""
 import Tkinter as tk
-import ProcessStats
+import process_stats
 
 
 class InputWindow(tk.Frame):
@@ -63,7 +63,7 @@ class InputWindow(tk.Frame):
         if(text == 'Enter a filename or directory') | (text == ''):
             pass
         else:
-            ProcessStats.process(text)
+            process_stats.process(text)
             self.entry_variable.set('Enter a filename or directory')
 
 
