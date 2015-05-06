@@ -86,7 +86,7 @@ def translate_player_stats(stats, index, name):
 
 
 
-class StatsDB(object):
+class StatsDBInput(object):
     """
     Class for adding entries to the stats database in the form
     given by the parser
