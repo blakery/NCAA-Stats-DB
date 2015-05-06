@@ -92,15 +92,13 @@ def is_ncaa_stat_file(filepath):
     check to see if the file is an ncaa stat file.
     right now it just checks for the csv extension
     """
-    split = os.path.splitext(filepath)
-    return split[1] == '.csv'
+    _, ext = os.path.splitext(filepath)
+    return ext == '.csv'
 
 
 def iterate_directory(path):
     """run through all the entries in path and process the csv files"""
-    for ret in os.walk(path):
-        dirpath = ret[0]
-        files = ret[2]
+    for dirpath, _, files in os.walk(path):
         for filepath in files:
             if is_ncaa_stat_file(filepath):
                 process_csv_file(os.path.join(dirpath, filepath))

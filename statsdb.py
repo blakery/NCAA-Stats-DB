@@ -49,17 +49,16 @@ def translate_team_stats(stats, index, name):
     called return the sql name and data type of the name as it's
     listed in the ncaa stats files
     """
-    stat_val = stats[index]
-    if stat_val is None or stat_val == '':
+    if stats[index] is None or stats[index] == '':
         return None
     elif name == 'TO':
-        return ('TURNOVERS', stat_val)
+        return ('TURNOVERS', stats[index])
     elif name == 'ORebs' or name == 'DRebs' or name == 'Opp_FT' \
         or name == 'FOPPPTS' or name == 'FFPPG':
         return None
     elif stats_headers.TEAM_STATS[name] == 'TEXT':
-        return (name, "'{}'".format(stat_val))
-    else: return (name, stat_val)
+        return (name, "'{}'".format(stats[index]))
+    else: return (name, stats[index])
 
 
 def translate_player_stats(stats, index, name):
@@ -67,20 +66,22 @@ def translate_player_stats(stats, index, name):
     called return the sql name and data type of the name as it's
     listed in the ncaa stats files
     """
-    stat_val = stats[index]
-    if stat_val is None or stat_val == '':
+
+    if stats[index] is None or stats[index] == '':
         return None
-    elif name == 'Ht':
-        return (name, stat_val + "." + stats.pop(index + 1))
-    elif name == 'TO':              #'TO' is a reserved keyword in sql
-        return ('TURNOVERS', stats[index])
     # For the truly broken or incomprehensible stuff, return None
     elif name == 'ORebs' or name == 'DRebs' or name == 'Dbl_Dbl' or \
         name == 'MP' or name == 'MPG' or name == 'Trpl_Dbl':
         return None
+    elif name == 'Ht':
+        height = stats.pop(index) + "." + stats[index]
+        return (name, height)
+    #'TO' is a reserved keyword in sql
+    elif name == 'TO':
+        return ('TURNOVERS', stats[index])
     elif stats_headers.PLAYER_STATS[name] == 'TEXT':
-        return (name, "'{}'".format(stat_val))
-    else: return (name, stat_val)
+        return (name, "'{}'".format(stats[index]))
+    else: return (name, stats[index])
 
 
 
@@ -128,7 +129,7 @@ class StatsDB(object):
                 try:
                     self.add_player_stats(player[1:], header[1:], date)
                 except MySQLdb.ProgrammingError, args:
-                    print args + ": " + date
+                    print str(args) + ": " + date
                     print header
                     print player
                 except KeyError, args:
@@ -138,7 +139,7 @@ class StatsDB(object):
                 try:
                     self.add_team_stats(team[1:], header[1:], date)
                 except MySQLdb.ProgrammingError, args:
-                    print args + ": " + date
+                    print str(args) + ": " + date
                     print header
                     print team
                 except KeyError, args:
@@ -178,7 +179,8 @@ class StatsDB(object):
             self.cursor.execute(
                 "INSERT INTO teams (name) VALUES ('{}');".format(school))
             self.cursor.execute(
-                "CREATE TABLE {}(player TEXT, ht DECIMAL(6, 2));".format(school))
+                "CREATE TABLE {}(player TEXT, ht DECIMAL(6, 2));".
+                format(school))
         else: pass
 
 
@@ -222,16 +224,16 @@ class StatsDB(object):
         cmd = "UPDATE {} \n".format(stats[0])
 
         # get a valid value to start
-        trans = translate_player_stats(stats, 2, headers[2])
+        index = 2
+        trans = translate_player_stats(stats, index, headers[index])
         while trans is None:
-            headers = headers[1:]
-            stats = stats[1:]
-            trans = translate_player_stats(stats, 2, headers[2])
+            index += 1
+            trans = translate_player_stats(stats, index, headers[index])
 
         field, val = trans
         cmd += "SET {} = {}".format(field, val)
 
-        for i in range(2, len(stats) -1):
+        for i in range(index+1, len(headers) -1):
             trans = translate_player_stats(stats, i, headers[i])
             if trans is None:
                 pass
@@ -262,11 +264,13 @@ class StatsDB(object):
 
     def _create_teams_table(self):
         """create the global teams table"""
+        #FIXME: check if resource exists in a more sensible way (ie IF EXISTS)
         try:
             self.cursor.execute("SELECT * FROM teams;")
         except MySQLdb.Error:
-            self.cursor.execute("CREATE TABLE teams(name TEXT);")
-            self._db.commit()
+            self.cursor.execute(
+                "CREATE TABLE teams(name TEXT);")
+        self._db.commit()
 
 
     def _create_team_stats_table(self):
