@@ -1,6 +1,16 @@
 """
+    TODO: Change to one teams table and one players table
     statsdb - contains StatsDB, a class for adding lists of stats to the
     mysql database
+
+    TODO: (maybe) switch to using MySQL Connector/Python. Advantages:
+        works with python 2 and 3. 
+        appears to be better maintained and the more cannonical choice at this
+            point
+
+    TODO: consider numerical keys and foreign keys
+
+    FIXME: Use proper string formating to prevent sql injection
 
     The database contains the following unique tables:
         * a label of "stats" indicates multiple values,
@@ -18,8 +28,17 @@
                 | name TEXT | week DATE | stats |
                 |-------------------------------|
 
-    In addition, the database contains the following non-unique tables:
+        TODO: changing all infastructure for teams
 
+        For each team:
+            |--------------------------------|
+            |          [team name]           |
+            |--------------------------------|
+            | player name | week DATE | stats|
+            |--------------------------------|
+
+
+The following are obsolete, and probably can go away:
         For each team:
             |------------------------------------|
             |           [team name]              |
@@ -37,11 +56,14 @@
             | team TEXT | week DATE | stats |
             |-------------------------------|
 
+#TODO: things that should probably go away:
+_create_player_stats_table()
+
 """
 import MySQLdb
 import Config
 import stats_headers
-
+#import mysql.Connector
 
 
 def translate_team_stats(stats, index, name):
@@ -129,9 +151,7 @@ class StatsDBInput(object):
                 try:
                     self.add_player_stats(player[1:], header[1:], date)
                 except MySQLdb.ProgrammingError, args:
-                    print str(args) + ": " + date
-                    print header
-                    print player
+                    print args
                 except KeyError, args:
                     print "Key error: " + date + ": " + str(args)
         else:
@@ -178,9 +198,15 @@ class StatsDBInput(object):
         if len(self.cursor.fetchall()) == 0:
             self.cursor.execute(
                 "INSERT INTO teams (name) VALUES ('{}');".format(school))
+
+            fields = stats_headers.PLAYER_STATS.items()
+            name, value = fields[0]
+            field_names = name + " " + value
+            for (name, value) in fields[1:]:
+                field_names += ", \n" + name + " " + value
             self.cursor.execute(
-                "CREATE TABLE {}(player TEXT, ht DECIMAL(6, 2));".
-                format(school))
+                "CREATE TABLE {}({});".
+                format(school, field_names))
         else: pass
 
 
@@ -190,10 +216,12 @@ class StatsDBInput(object):
         stats is a list in the form of [name, school, stats...]
         headers is a list of the corresponding column names
         """
-        self._add_team(stats[1])
-        self._create_player_stats_table(stats[0])
-        self.cursor.execute(
-            "SELECT * FROM {} WHERE week = {};".format(stats[0], date))
+        name = stats[0]
+        team = stats[1]
+        self._add_team(team)
+        cmd = "SELECT * FROM {} WHERE Name = '{}' AND Week = {};".format(team, name, date)
+        self.cursor.execute(cmd)
+            
         if len(self.cursor.fetchall()) == 0:
             self._add_new_player_stats(stats, headers, date)
         else:
@@ -203,8 +231,8 @@ class StatsDBInput(object):
 
     def _add_new_player_stats(self, stats, headers, date):
         """called by add_player_stats() to add a new player """
-        columns = "week"
-        values = date
+        columns = "name, week"
+        values = "'" + stats[0] + "'," + date
 
         for i in range(2, len(headers) -1):
             trans = translate_player_stats(stats, i, headers[i])
@@ -214,14 +242,14 @@ class StatsDBInput(object):
                 field, val = trans
                 columns += ", " + field
                 values += ", " + val
-        cmd = "INSERT INTO {}({}) VALUES ({})".format(stats[0], columns, values)
+        cmd = "INSERT INTO {}({}) VALUES ({})".format(stats[1], columns, values)
         self.cursor.execute(cmd)
 
 
     def _update_player_stats(self, stats, headers, date):
         """called by add_player_stats() to update an existing player"""
 
-        cmd = "UPDATE {} \n".format(stats[0])
+        cmd = "UPDATE {} \n".format(stats[1])
 
         # get a valid value to start
         index = 2
@@ -241,7 +269,7 @@ class StatsDBInput(object):
                 field, val = trans
                 cmd += ", {} = {}".format(field, val)
 
-        cmd += "\n WHERE week = {};".format(date)
+        cmd += "\n WHERE name = '{}' AND week = {};".format(stats[0], date)
         self.cursor.execute(cmd)
 
 
@@ -286,3 +314,49 @@ class StatsDBInput(object):
             cmd += ");"
             self.cursor.execute(cmd)
 
+
+
+class StatsDBOutput(object):
+    '''
+
+    '''
+
+
+    def __init__(self, host=None, user=None,
+                 password="", db=None):
+        if host is None:
+            host = Config.getSQLHost()
+        if user is None:
+            user = Config.getSQLUserName()
+        if db is None:
+            db = Config.getSQLDB()
+        try:
+            self._db = MySQLdb.connect(host=host, user=user,
+                                       passwd=password, db=db)
+        except MySQLdb.OperationalError, args:
+            print args
+        else:
+            self.cursor = self._db.cursor()
+
+
+    def get_teams(self):
+        '''
+        returns a list of teams in the database
+        '''
+        cmd = "SELECT * FROM teams;"
+        self.cursor.execute(cmd)
+        teams = []
+        for t in self.cursor.fetchall():
+            teams.append(t[0])
+        return teams
+
+
+    def get_players(self, team, year):
+        '''
+        returns the roster of a team for a particular year as a list
+
+        '''
+        
+        cmd = "SELECT * FROM " + team 
+        
+        

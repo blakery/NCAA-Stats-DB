@@ -52,13 +52,13 @@ TEAM_STATS = {
 }
 
 
-PLAYER_STATIC_STATS = {
-    'Name' : 'TEXT',
-    'Team' : 'TEXT',
-
-}
+#PLAYER_STATIC_STATS = {
+#    'Name' : 'TEXT',
+#    'Team' : 'TEXT',
+#}
 
 PLAYER_STATS = {
+    'Name' : 'TEXT',
     'Week' : 'DATE',
     'Ht'   : 'DECIMAL(6, 2)',
     'Cl'  : 'TEXT',  # year? if so, no idea why it's 'cl'
