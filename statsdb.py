@@ -28,8 +28,6 @@
                 | name TEXT | week DATE | stats |
                 |-------------------------------|
 
-        TODO: changing all infastructure for teams
-
         For each team:
             |--------------------------------|
             |          [team name]           |
@@ -38,23 +36,6 @@
             |--------------------------------|
 
 
-The following are obsolete, and probably can go away:
-        For each team:
-            |------------------------------------|
-            |           [team name]              |
-            |------------------------------------|
-            | player name | ht DECIMAL | yrs 1-4 |
-            |------------------------------------|
-            * the method of storing the years the player has played for
-              the team is still uncertain
-
-
-        For each player:
-            |-------------------------------|
-            |         [player name]         |
-            |-------------------------------|
-            | team TEXT | week DATE | stats |
-            |-------------------------------|
 
 #TODO: things that should probably go away:
 _create_player_stats_table()
@@ -273,23 +254,6 @@ class StatsDBInput(object):
         self.cursor.execute(cmd)
 
 
-    def _create_player_stats_table(self, player):
-        """
-        called by _add_player() to initialize the table named for the player,
-        consisting of all of their stats keyed by week
-        """
-        try:
-            self.cursor.execute("SELECT * FROM {};".format(player))
-        except MySQLdb.Error:
-            cmd = "CREATE TABLE " + player + "("
-            fields = stats_headers.PLAYER_STATS.items()
-            for (name, value) in fields:
-                cmd += name + " " + value + ", \n"
-            cmd += "PRIMARY KEY (week));"
-            self.cursor.execute(cmd)
-            self._db.commit()
-
-
     def _create_teams_table(self):
         """create the global teams table"""
         #FIXME: check if resource exists in a more sensible way (ie IF EXISTS)
@@ -354,9 +318,20 @@ class StatsDBOutput(object):
     def get_players(self, team, year):
         '''
         returns the roster of a team for a particular year as a list
-
         '''
+
+        cmd = "SELECT * FROM " + team + " WHERE YEAR(Week) = '" + str(year) + "';"
+        self.cursor.execute(cmd)
+        players = []
+        player_data = self.cursor.fetchall()
+        desc = self.cursor.description
+        i=0
+        while(desc[i][0] != 'Name'):
+            i += 1
         
-        cmd = "SELECT * FROM " + team 
-        
-        
+        for p in player_data:
+            players.append(p[i])
+        return players
+
+
+
