@@ -1,5 +1,4 @@
 """
-    TODO: Change to one teams table and one players table
     statsdb - contains StatsDB, a class for adding lists of stats to the
     mysql database
 
@@ -34,11 +33,6 @@
             |--------------------------------|
             | player name | week DATE | stats|
             |--------------------------------|
-
-
-
-#TODO: things that should probably go away:
-_create_player_stats_table()
 
 """
 import MySQLdb
@@ -180,15 +174,20 @@ class StatsDBInput(object):
             self.cursor.execute(
                 "INSERT INTO teams (name) VALUES ('{}');".format(school))
 
+        try: self.cursor.execute("SELECT * FROM {};".format(school))
+        except:
             fields = stats_headers.PLAYER_STATS.items()
             name, value = fields[0]
             field_names = name + " " + value
             for (name, value) in fields[1:]:
                 field_names += ", \n" + name + " " + value
             self.cursor.execute(
-                "CREATE TABLE {}({});".
+                "CREATE TABLE {} ({});".
                 format(school, field_names))
-        else: pass
+        else:
+            return
+
+
 
 
     def add_player_stats(self, stats, headers, date):
