@@ -9,8 +9,6 @@
 
     TODO: consider numerical keys and foreign keys
 
-    FIXME: Use proper string formating to prevent sql injection
-
     The database contains the following unique tables:
         * a label of "stats" indicates multiple values,
             which are found in more detail in StatsHeaders.py
@@ -200,8 +198,7 @@ class StatsDBInput(object):
             for (name, value) in fields[1:]:
                 field_names += ", \n" + name + " " + value
             self.cursor.execute(
-                "CREATE TABLE {} ({});".
-                format(school, field_names))
+                "CREATE TABLE {} ({});".format(school, field_names))
         else:
             return
 
@@ -322,8 +319,7 @@ class StatsDBOutput(object):
         '''
         returns a list of teams in the database
         '''
-        cmd = "SELECT * FROM teams;"
-        self.cursor.execute(cmd)
+        self.cursor.execute("SELECT * FROM teams;")
         teams = []
         for t in self.cursor.fetchall():
             teams.append(t[0])
