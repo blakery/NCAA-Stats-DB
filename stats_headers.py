@@ -21,7 +21,7 @@ TEAM_STATS = {
     'OPP_FG'  : 'INT',
     'OPP_FGA' : 'INT',
     'OPP_FG_PERCENTAGE' : 'DECIMAL(6, 2)',
-    'Opp_3FGA' : 'INT', #here is the one thing they don't capitalize consitently
+    'Opp_3FGA' : 'INT', # they don't capitalize this consitently
     'Opp_3FG' : 'INT',
     '3FG' : 'INT',
     '3PG' : 'DECIMAL(6, 2)',
@@ -51,11 +51,6 @@ TEAM_STATS = {
     "DQ" : 'INT'
 }
 
-
-#PLAYER_STATIC_STATS = {
-#    'Name' : 'TEXT',
-#    'Team' : 'TEXT',
-#}
 
 PLAYER_STATS = {
     'Name' : 'TEXT',
@@ -90,5 +85,6 @@ PLAYER_STATS = {
 }
 
 
-
+IGNORE_STATS = ['DRebs', 'Dbl_Dbl', 'ORebs', 'MP', 'MPG', 'Trpl_Dbl',
+'Opp_FT', 'FOPPPTS', 'FFPPG']
 

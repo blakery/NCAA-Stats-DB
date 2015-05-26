@@ -12,7 +12,7 @@ def convert_date(old_date):
     In the NCAA files, it's month/day/year: We need it to be Year/Month/Day
     """
     temp = re.findall(r'\d+', old_date)
-    new_date = "'" + temp[2] + "/" + temp[0] + "/" + temp[1] + "'"
+    new_date = temp[2] + "/" + temp[0] + "/" + temp[1]
     return new_date
 
 def get_date(csv_file):
@@ -35,6 +35,8 @@ def format_data(row):
             final.append('')
         elif re.match(r'\d+\.\d+', element): #don't replace decimal points
             final.append(element)
+#        elif re.match(r'\d+', element): #regex needs to match ONLY numbers
+ #           final.append(element)
         else: # get rid of any other troublesome characters
             def elem_repl(match):
                 """simple replacement function to call in re.sub()"""

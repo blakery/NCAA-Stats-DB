@@ -3,7 +3,7 @@
     mysql database
 
     TODO: (maybe) switch to using MySQL Connector/Python. Advantages:
-        works with python 2 and 3. 
+        works with python 2 and 3.
         appears to be better maintained and the more cannonical choice at this
             point
 
@@ -38,49 +38,64 @@
 import MySQLdb
 import Config
 import stats_headers
-#import mysql.Connector
+#import mysql.Connector - eventually
 
 
-def translate_team_stats(stats, index, name):
-    """
-    called return the sql name and data type of the name as it's
-    listed in the ncaa stats files
-    """
-    if stats[index] is None or stats[index] == '':
+def get_edited_name(names):
+    if type(names) != list:
+        return None 
+    elif not names[0] or names[0] == '' or \
+    names[0] in stats_headers.IGNORE_STATS:
         return None
-    elif name == 'TO':
-        return ('TURNOVERS', stats[index])
-    elif name == 'ORebs' or name == 'DRebs' or name == 'Opp_FT' \
-        or name == 'FOPPPTS' or name == 'FFPPG':
+    elif names[0] == 'TO':
+        return 'TURNOVERS'
+    else: return names[0]
+
+def get_edited_val(stats, name):
+    if type(stats) != list:
         return None
-    elif stats_headers.TEAM_STATS[name] == 'TEXT':
-        return (name, "'{}'".format(stats[index]))
-    else: return (name, stats[index])
-
-
-def translate_player_stats(stats, index, name):
-    """
-    called return the sql name and data type of the name as it's
-    listed in the ncaa stats files
-    """
-
-    if stats[index] is None or stats[index] == '':
-        return None
-    # For the truly broken or incomprehensible stuff, return None
-    elif name == 'ORebs' or name == 'DRebs' or name == 'Dbl_Dbl' or \
-        name == 'MP' or name == 'MPG' or name == 'Trpl_Dbl':
+    elif not stats[0] or stats[0] == '':
         return None
     elif name == 'Ht':
-        height = stats.pop(index) + "." + stats[index]
-        return (name, height)
-    #'TO' is a reserved keyword in sql
-    elif name == 'TO':
-        return ('TURNOVERS', stats[index])
-    elif stats_headers.PLAYER_STATS[name] == 'TEXT':
-        return (name, "'{}'".format(stats[index]))
-    else: return (name, stats[index])
+        return stats.pop(0) + "." + str(int(stats[0]) / 12)
+    else:
+        return stats[0]
 
+def edit_stats(stats, names, names_ret=None, stats_ret=None):
+    """ return a properly formatted list of stats and their
+    corresponding names, derived from stats and names.
+    Removes None values, empty strings, and stats that are ignored.
+    If the stat is height ("Ht"), it takes [h1, h2]
+    (originally h1 - h2, representing h1' h2 "), and turns it into h1.(h2/12)
+    """
+    if not names or not stats: # base case: empty lists
+        return (names_ret, stats_ret)
 
+    if type(names) != list:
+        print "Error: Expected type list, recieved" + str(type(names))
+        print "Value: " + str(names)
+        return names_ret, stats_ret
+
+    if type(stats) != list:
+        print "Error: Expected type list, recieved" + str(type(stats))
+        print "Value: " + str(stats)
+        return names_ret, stats_ret
+        
+    name = get_edited_name(names)
+    if not name:
+        return edit_stats(stats[1:], names[1:], names_ret, stats_ret)
+
+    val = get_edited_val(stats, name)
+    if not val: 
+        return edit_stats(stats[1:], names[1:], names_ret, stats_ret)
+    
+    if not names_ret or not stats_ret or \
+    type(names_ret) != list or type(stats_ret) != list:
+        return edit_stats(stats[1:], names[1:], [name], [val])
+    else:
+        names_ret.append(name)
+        stats_ret.append(val)
+        return edit_stats(stats[1:], names[1:], names_ret, stats_ret)
 
 
 class StatsDBInput(object):
@@ -151,7 +166,7 @@ class StatsDBInput(object):
         values = date
 
         for i in range(len(headers)):
-            trans = translate_team_stats(stats, i, headers[i])
+            trans = edit_stats(stats, headers[i], date)#FIXME:NOT CORRECT USAGE
             if trans is None:
                 pass
             else:
@@ -168,14 +183,14 @@ class StatsDBInput(object):
             - creates a team roster table
             - adds the team to the teams table
         """
-        self.cursor.execute(
-            "SELECT * FROM teams WHERE name = '{}';".format(school))
+        self.cursor.execute("SELECT * FROM teams WHERE name = %s;", school)
+        
         if len(self.cursor.fetchall()) == 0:
-            self.cursor.execute(
-                "INSERT INTO teams (name) VALUES ('{}');".format(school))
+            self.cursor.execute("INSERT INTO teams(name) VALUES(%s);", school)
 
-        try: self.cursor.execute("SELECT * FROM {};".format(school))
-        except:
+        try: 
+            self.cursor.execute("SELECT * FROM {};".format(school))
+        except MySQLdb.Error:
             fields = stats_headers.PLAYER_STATS.items()
             name, value = fields[0]
             field_names = name + " " + value
@@ -199,9 +214,10 @@ class StatsDBInput(object):
         name = stats[0]
         team = stats[1]
         self._add_team(team)
-        cmd = "SELECT * FROM {} WHERE Name = '{}' AND Week = {};".format(team, name, date)
-        self.cursor.execute(cmd)
-            
+
+        cmd = "SELECT * FROM " + team + " WHERE Name = %s AND Week = %s;"
+        self.cursor.execute(cmd, (name, date))
+
         if len(self.cursor.fetchall()) == 0:
             self._add_new_player_stats(stats, headers, date)
         else:
@@ -211,47 +227,50 @@ class StatsDBInput(object):
 
     def _add_new_player_stats(self, stats, headers, date):
         """called by add_player_stats() to add a new player """
-        columns = "name, week"
-        values = "'" + stats[0] + "'," + date
 
-        for i in range(2, len(headers) -1):
-            trans = translate_player_stats(stats, i, headers[i])
-            if trans is None:
-                pass
-            else:
-                field, val = trans
-                columns += ", " + field
-                values += ", " + val
-        cmd = "INSERT INTO {}({}) VALUES ({})".format(stats[1], columns, values)
-        self.cursor.execute(cmd)
+        cmd = "INSERT INTO " + stats[1] + "(name, Week"
+
+        revised_headers, values = edit_stats(stats[2:], headers[2:])
+
+        values.insert(0, date)
+        values.insert(0, stats[0])
+
+        for h in revised_headers:
+            cmd += ", " + h
+
+        cmd += ") VALUES(%s , %s"
+
+        for _ in range(1, len(values) - 1):
+            cmd += ", %s "
+        cmd += ");"
+
+        try:
+            self.cursor.execute(cmd, values)
+        except Exception, args:
+            print args
+            print cmd
+            print values
+            print stats
 
 
     def _update_player_stats(self, stats, headers, date):
         """called by add_player_stats() to update an existing player"""
 
-        cmd = "UPDATE {} \n".format(stats[1])
+        revised_headers, values = edit_stats(stats[2:], headers[2:])
 
-        # get a valid value to start
-        index = 2
-        trans = translate_player_stats(stats, index, headers[index])
-        while trans is None:
-            index += 1
-            trans = translate_player_stats(stats, index, headers[index])
+        cmd = "UPDATE " + stats[1] + "\nSET " + revised_headers[0] + " = %s "
 
-        field, val = trans
-        cmd += "SET {} = {}".format(field, val)
+        for n in revised_headers[1:]:
+            cmd += ", " + n + " = %s"
 
-        for i in range(index+1, len(headers) -1):
-            trans = translate_player_stats(stats, i, headers[i])
-            if trans is None:
-                pass
-            else:
-                field, val = trans
-                cmd += ", {} = {}".format(field, val)
-
-        cmd += "\n WHERE name = '{}' AND week = {};".format(stats[0], date)
-        self.cursor.execute(cmd)
-
+        cmd += " WHERE (name = %s ) AND (week = %s );"
+        values.append(stats[0])
+        values.append(date)
+        try:
+            self.cursor.execute(cmd, values)
+        except Exception, args:
+            print args
+            print cmd
 
     def _create_teams_table(self):
         """create the global teams table"""
@@ -281,7 +300,7 @@ class StatsDBInput(object):
 
 class StatsDBOutput(object):
     '''
-
+    Output values from the db
     '''
 
 
@@ -319,15 +338,16 @@ class StatsDBOutput(object):
         returns the roster of a team for a particular year as a list
         '''
 
-        cmd = "SELECT * FROM " + team + " WHERE YEAR(Week) = '" + str(year) + "';"
-        self.cursor.execute(cmd)
+        cmd = "SELECT * FROM " + team + " WHERE YEAR(Week) = %s;"
+        self.cursor.execute(cmd, year)
         players = []
         player_data = self.cursor.fetchall()
+
         desc = self.cursor.description
-        i=0
-        while(desc[i][0] != 'Name'):
+        i = 0
+        while i < len(desc) and desc[i][0] != 'Name':
             i += 1
-        
+
         for p in player_data:
             players.append(p[i])
         return players
