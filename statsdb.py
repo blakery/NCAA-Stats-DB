@@ -162,19 +162,20 @@ class StatsDBInput(object):
         stats is a list consisting of: [team name, stats...]
         """
         self._add_team(stats[0])
-        columns = "week"
-        values = date
 
-        for i in range(len(headers)):
-            trans = edit_stats(stats, headers[i], date)#FIXME:NOT CORRECT USAGE
-            if trans is None:
-                pass
-            else:
-                field, val = trans
-                columns += ", " + field
-                values += ", " + val
-        cmd = "INSERT INTO TeamStats({}) VALUES({});".format(columns, values)
-        self.cursor.execute(cmd)
+        names, values = edit_stats(stats[1:], headers[1:])
+
+        cmd = "INSERT INTO TeamStats("
+        for n in names:
+            cmd += n + ", "
+        cmd += "week) VALUES("
+        for _ in values:
+            cmd += "%s, "
+        cmd += "%s);"
+
+        values.append(date)
+
+        self.cursor.execute(cmd, values)
 
 
     def _add_team(self, school):
@@ -228,29 +229,23 @@ class StatsDBInput(object):
     def _add_new_player_stats(self, stats, headers, date):
         """called by add_player_stats() to add a new player """
 
-        cmd = "INSERT INTO " + stats[1] + "(name, Week"
-
         revised_headers, values = edit_stats(stats[2:], headers[2:])
 
+        cmd = "INSERT INTO " + stats[1] + "(name, Week"
+        for h in revised_headers:
+            cmd += ", " + h
+        cmd += ") VALUES(%s , %s"
+        for _ in values:
+            cmd += ", %s "
+        cmd += ");"
+        
         values.insert(0, date)
         values.insert(0, stats[0])
 
-        for h in revised_headers:
-            cmd += ", " + h
-
-        cmd += ") VALUES(%s , %s"
-
-        for _ in range(1, len(values) - 1):
-            cmd += ", %s "
-        cmd += ");"
-
         try:
             self.cursor.execute(cmd, values)
-        except Exception, args:
+        except MySQLdb.Error, args:
             print args
-            print cmd
-            print values
-            print stats
 
 
     def _update_player_stats(self, stats, headers, date):
