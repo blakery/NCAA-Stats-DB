@@ -2,12 +2,12 @@
     statsdb - contains StatsDB, a class for adding lists of stats to the
     mysql database
 
-    TODO: (maybe) switch to using MySQL Connector/Python. Advantages:
+    TO CONSIDER: switch to using MySQL Connector/Python. Advantages:
         works with python 2 and 3.
         appears to be better maintained and the more cannonical choice at this
             point
 
-    TODO: consider numerical keys and foreign keys
+    TO CONSIDER: numerical keys and foreign keys
 
     The database contains the following unique tables:
         * a label of "stats" indicates multiple values,
@@ -36,18 +36,19 @@
 import MySQLdb
 import Config
 import stats_headers
-#import mysql.Connector - eventually
+
 
 
 
 
 def edit_stats(stats, names, names_ret=None, stats_ret=None):
-    """ return a properly formatted list of stats and their
+    ''' 
+    return a properly formatted list of stats and their
     corresponding names, derived from stats and names.
     Removes None values, empty strings, and stats that are ignored.
-    If the stat is height ("Ht"), it takes [h1, h2]
-    (originally h1 - h2, representing h1' h2 "), and turns it into h1.(h2/12)
-    """
+    If the stat is height ("Ht"), [h1, h2] (originally h1 - h2, 
+        representing h1' h2 ") becomes h1.(h2 / 12).
+    '''
     def get_edited_name(names):
         if type(names) != list:
             return None 
@@ -70,16 +71,6 @@ def edit_stats(stats, names, names_ret=None, stats_ret=None):
 
     if not names or not stats: # base case: empty lists
         return (names_ret, stats_ret)
-
-    if type(names) != list:
-        print "Error: Expected type list, recieved" + str(type(names))
-        print "Value: " + str(names)
-        return names_ret, stats_ret
-
-    if type(stats) != list:
-        print "Error: Expected type list, recieved" + str(type(stats))
-        print "Value: " + str(stats)
-        return names_ret, stats_ret
         
     name = get_edited_name(names)
     if not name:
@@ -149,7 +140,7 @@ class StatsDBInput(object):
                 try:
                     self.add_team_stats(team[1:], header[1:], date)
                 except MySQLdb.ProgrammingError, args:
-                    print str(args) + ": " + date
+                    print args
                     print header
                     print team
                 except KeyError, args:
@@ -272,9 +263,8 @@ class StatsDBInput(object):
         try:
             self.cursor.execute("SELECT * FROM teams;")
         except MySQLdb.Error:
-            self.cursor.execute(
-                "CREATE TABLE teams(name TEXT);")
-        self._db.commit()
+            self.cursor.execute("CREATE TABLE teams(name TEXT);")
+        self.cursor.execute("COMMIT;")
 
 
     def _create_team_stats_table(self):
