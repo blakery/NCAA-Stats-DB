@@ -41,25 +41,7 @@ import stats_headers
 #import mysql.Connector - eventually
 
 
-def get_edited_name(names):
-    if type(names) != list:
-        return None 
-    elif not names[0] or names[0] == '' or \
-    names[0] in stats_headers.IGNORE_STATS:
-        return None
-    elif names[0] == 'TO':
-        return 'TURNOVERS'
-    else: return names[0]
 
-def get_edited_val(stats, name):
-    if type(stats) != list:
-        return None
-    elif not stats[0] or stats[0] == '':
-        return None
-    elif name == 'Ht':
-        return stats.pop(0) + "." + str(int(stats[0]) / 12)
-    else:
-        return stats[0]
 
 def edit_stats(stats, names, names_ret=None, stats_ret=None):
     """ return a properly formatted list of stats and their
@@ -68,6 +50,26 @@ def edit_stats(stats, names, names_ret=None, stats_ret=None):
     If the stat is height ("Ht"), it takes [h1, h2]
     (originally h1 - h2, representing h1' h2 "), and turns it into h1.(h2/12)
     """
+    def get_edited_name(names):
+        if type(names) != list:
+            return None 
+        elif not names[0] or names[0] == '' or \
+        names[0] in stats_headers.IGNORE_STATS:
+            return None
+        elif names[0] == 'TO':
+            return 'TURNOVERS'
+        else: return names[0]
+
+    def get_edited_val(stats, name):
+        if type(stats) != list:
+            return None
+        elif not stats[0] or stats[0] == '':
+            return None
+        elif name == 'Ht':
+            return stats.pop(0) + "." + str(int(stats[0]) / 12)
+        else:
+            return stats[0]
+
     if not names or not stats: # base case: empty lists
         return (names_ret, stats_ret)
 
