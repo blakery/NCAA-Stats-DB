@@ -230,7 +230,7 @@ class StatsDBInput(object):
             values.insert(0, date)
             values.insert(0, stats[0])
         else:
-            cmd += ") VALUES %s , %s);"
+            cmd += ") VALUES(%s , %s);"
             values = [stats[0], date]
         try:
             self.cursor.execute(cmd, values)
