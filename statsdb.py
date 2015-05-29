@@ -230,12 +230,13 @@ class StatsDBInput(object):
             values.insert(0, date)
             values.insert(0, stats[0])
         else:
-            cmd += ") VALUES %s, %s);"
+            cmd += ") VALUES %s , %s);"
             values = [stats[0], date]
         try:
             self.cursor.execute(cmd, values)
         except MySQLdb.Error, args:
-            errors.mysql_input_error(args, stats, headers, date)
+            action = "adding a new player"
+            errors.mysql_input_error(args, stats, headers, date, action)
 
 
     def _update_player_stats(self, stats, headers, date):

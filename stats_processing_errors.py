@@ -10,7 +10,9 @@ def set_stderr(err_file):
     sys.stderr = err_file
 
 
-def mysql_input_error(args, stats=None, headers=None, date=None):
+def mysql_input_error(args, stats=None, headers=None, date=None, action=None):
+    if action:
+        print >> sys.stderr, "ERROR when {}:".format(action)
     print >> sys.stderr, args
     if date:
         print >> sys.stderr, date
