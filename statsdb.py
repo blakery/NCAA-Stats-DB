@@ -36,22 +36,22 @@
 import MySQLdb
 import Config
 import stats_headers
-
+import stats_processing_errors as errors
 
 
 
 
 def edit_stats(stats, names, names_ret=None, stats_ret=None):
-    ''' 
+    '''
     return a properly formatted list of stats and their
     corresponding names, derived from stats and names.
     Removes None values, empty strings, and stats that are ignored.
-    If the stat is height ("Ht"), [h1, h2] (originally h1 - h2, 
+    If the stat is height ("Ht"), [h1, h2] (originally h1 - h2,
         representing h1' h2 ") becomes h1.(h2 / 12).
     '''
     def get_edited_name(names):
         if type(names) != list:
-            return None 
+            return None
         elif not names[0] or names[0] == '' or \
         names[0] in stats_headers.IGNORE_STATS:
             return None
@@ -71,17 +71,16 @@ def edit_stats(stats, names, names_ret=None, stats_ret=None):
 
     if not names or not stats: # base case: empty lists
         return (names_ret, stats_ret)
-        
+
     name = get_edited_name(names)
     if not name:
         return edit_stats(stats[1:], names[1:], names_ret, stats_ret)
 
     val = get_edited_val(stats, name)
-    if not val: 
+    if not val:
         return edit_stats(stats[1:], names[1:], names_ret, stats_ret)
-    
-    if not names_ret or not stats_ret or \
-    type(names_ret) != list or type(stats_ret) != list:
+
+    if not names_ret or not stats_ret:
         return edit_stats(stats[1:], names[1:], [name], [val])
     else:
         names_ret.append(name)
@@ -132,19 +131,18 @@ class StatsDBInput(object):
                 try:
                     self.add_player_stats(player[1:], header[1:], date)
                 except MySQLdb.ProgrammingError, args:
-                    print args
+                    errors.mysql_input_error(args, player, header, date)
                 except KeyError, args:
-                    print "Key error: " + date + ": " + str(args)
+                    error.missing_column(date, str(args))
         else:
             for team in block[1:]:
                 try:
                     self.add_team_stats(team[1:], header[1:], date)
                 except MySQLdb.ProgrammingError, args:
-                    print args
-                    print header
-                    print team
+                    errors.mysql_input_error(args, team, header, date)
                 except KeyError, args:
-                    print "Key error: " + date + ": " + str(args)
+                    error.missing_column(date, str(args))
+
 
 
     def add_team_stats(self, stats, headers, date):
@@ -176,11 +174,11 @@ class StatsDBInput(object):
             - adds the team to the teams table
         """
         self.cursor.execute("SELECT * FROM teams WHERE name = %s;", school)
-        
+
         if len(self.cursor.fetchall()) == 0:
             self.cursor.execute("INSERT INTO teams(name) VALUES(%s);", school)
 
-        try: 
+        try:
             self.cursor.execute("SELECT * FROM {};".format(school))
         except MySQLdb.Error:
             fields = stats_headers.PLAYER_STATS.items()
@@ -202,12 +200,11 @@ class StatsDBInput(object):
         stats is a list in the form of [name, school, stats...]
         headers is a list of the corresponding column names
         """
-        name = stats[0]
-        team = stats[1]
-        self._add_team(team)
 
-        cmd = "SELECT * FROM " + team + " WHERE Name = %s AND Week = %s;"
-        self.cursor.execute(cmd, (name, date))
+        self._add_team(stats[1])
+
+        cmd = "SELECT * FROM " + stats[1] + " WHERE Name = %s AND Week = %s;"
+        self.cursor.execute(cmd, (stats[0], date))
 
         if len(self.cursor.fetchall()) == 0:
             self._add_new_player_stats(stats, headers, date)
@@ -222,29 +219,33 @@ class StatsDBInput(object):
         revised_headers, values = edit_stats(stats[2:], headers[2:])
 
         cmd = "INSERT INTO " + stats[1] + "(name, Week"
-        for h in revised_headers:
-            cmd += ", " + h
-        cmd += ") VALUES(%s , %s"
-        for _ in values:
-            cmd += ", %s "
-        cmd += ");"
         
-        values.insert(0, date)
-        values.insert(0, stats[0])
-
+        if revised_headers and values:
+            for h in revised_headers:
+                cmd += ", " + h
+            cmd += ") VALUES(%s , %s"
+            for _ in values:
+                cmd += ", %s "
+            cmd += ");"
+            values.insert(0, date)
+            values.insert(0, stats[0])
+        else:
+            cmd += ") VALUES %s, %s);"
+            values = [stats[0], date]
         try:
             self.cursor.execute(cmd, values)
         except MySQLdb.Error, args:
-            print args
+            errors.mysql_input_error(args, stats, headers, date)
 
 
     def _update_player_stats(self, stats, headers, date):
         """called by add_player_stats() to update an existing player"""
 
         revised_headers, values = edit_stats(stats[2:], headers[2:])
+        if not revised_headers or not values:
+            return    # pointless to update if we don't have any stats
 
         cmd = "UPDATE " + stats[1] + "\nSET " + revised_headers[0] + " = %s "
-
         for n in revised_headers[1:]:
             cmd += ", " + n + " = %s"
 
@@ -253,9 +254,10 @@ class StatsDBInput(object):
         values.append(date)
         try:
             self.cursor.execute(cmd, values)
-        except Exception, args:
-            print args
-            print cmd
+        except MySQLdb.Error, args:
+            errors.mysql_input_error(args, stats, headers, date)
+
+
 
     def _create_teams_table(self):
         """create the global teams table"""
