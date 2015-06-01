@@ -9,8 +9,10 @@ class OutputWindow(tk.Frame):
     """
 
     def __init__(self, master=None):
-        self.quit_button = self.select_team = self.teams_menu = None
 
+        self.select_team = self.teams_menu = None
+        self.select_year = self.year_menu = None
+        self.quit_button = None
         tk.Frame.__init__(self, master)
 
         self.stats = statsdb.StatsDBOutput()
@@ -28,6 +30,8 @@ class OutputWindow(tk.Frame):
     def _populate_objects(self):
         self._create_quit_button()
         self._create_teams_menu()
+        self._create_year_menu()
+
 
     def _create_quit_button(self):
         self.quit_button = tk.Button(self, text='Quit', command=self.quit,
@@ -37,17 +41,30 @@ class OutputWindow(tk.Frame):
 
     def _create_teams_menu(self):
         self.select_team = tk.Label(self, text='Select a Team')
-        self.select_team.grid(row=2, column=1)
+        self.select_team.grid(row=1, column=1)
         
         self.teams_menu = tk.Listbox(self)
         
         teams = self.stats.get_teams()        
         for i in teams:
             self.teams_menu.insert(tk.END, i)
-        self.teams_menu.grid(row=3, column=1, padx=10, pady=10)
+        self.teams_menu.grid(row=2, column=1, padx=10, pady=10)
 
     def _get_selected_team(self):
         return self.teams_menu.get(tk.ACTIVE)
+
+
+    def _create_year_menu(self):
+        self.select_year = tk.Label(self, text='Select a Year')
+        self.select_year.grid(row=1, column=2)
+        
+        self.year_menu = tk.Listbox(self)
+        
+        years = self.stats.get_years()
+
+        for y in years:
+            self.year_menu.insert(tk.END, y)
+        self.year_menu.grid(row=2, column=2, padx=10, pady=10)
 
 
 if __name__ == '__main__':
