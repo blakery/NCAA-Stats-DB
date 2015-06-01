@@ -68,7 +68,7 @@ class OutputWindow(tk.Frame):
 
     def _create_show_roster_button(self):
         self.show_roster_button = tk.Button(self, text='Get Roster', 
-                                            action=self._show_roster)
+                                            command=self._show_roster)
         self.show_roster_button.grid(row=5, column=1, padx=10, pady=10)
 
 
