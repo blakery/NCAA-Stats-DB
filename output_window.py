@@ -79,11 +79,14 @@ class OutputWindow(tk.Frame):
 
 class RosterWindow(tk.Frame):
 
-    def __init__(self, players, team=None, year=None):
-        self.roster = self.quit_button = None
+    def __init__(self, players, team=None, year=None, master=None):
+        self.roster = self.quit_button = None        
         
-        self.parent = tk.Toplevel()
-        tk.Frame.__init__(self, self.parent)
+        if not master:
+            self.master = tk.Toplevel()
+        else:
+            self.master = master
+        tk.Frame.__init__(self, self.master)
 
         self._create_window(team, year)
         self._display_roster(players)
@@ -102,11 +105,12 @@ class RosterWindow(tk.Frame):
         self.roster.grid(row=1, column=1)
 
     def _create_quit_button(self):
-        self.quit_button = tk.Button(self, text='Quit', 
-                                     command=self.parent.destroy)
+        self.quit_button = tk.Button(self, text='Quit',
+                                     command=self.master.destroy)
         self.quit_button.grid(row=2)
 
 
 if __name__ == '__main__':
     APP = OutputWindow()
     APP.mainloop()
+
