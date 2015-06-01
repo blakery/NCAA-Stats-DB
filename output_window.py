@@ -13,8 +13,8 @@ class OutputWindow(tk.Frame):
         self.select_team = self.teams_menu = None
         self.select_year = self.year_menu = None
         self.show_roster_button = self.quit_button = None
+        
         tk.Frame.__init__(self, master)
-
         self.stats = statsdb.StatsDBOutput()
 
         self._create_window()
@@ -43,22 +43,20 @@ class OutputWindow(tk.Frame):
         self.select_team = tk.Label(self, text='Select a Team')
         self.select_team.grid(row=1, column=1)
         
-        self.teams_menu = tk.Listbox(self)
+        self.teams_menu = tk.Listbox(self, exportselection=False)
         
         teams = self.stats.get_teams()        
         for i in teams:
             self.teams_menu.insert(tk.END, i)
         self.teams_menu.grid(row=2, column=1, padx=10, pady=10)
 
-    def _get_selected_team(self):
-        return self.teams_menu.get(tk.ACTIVE)
 
 
     def _create_year_menu(self):
         self.select_year = tk.Label(self, text='Select a Year')
         self.select_year.grid(row=1, column=2)
         
-        self.year_menu = tk.Listbox(self)
+        self.year_menu = tk.Listbox(self, exportselection=False)
         
         years = self.stats.get_years()
 
@@ -73,7 +71,41 @@ class OutputWindow(tk.Frame):
 
 
     def _show_roster(self):
-        pass
+        team = self.teams_menu.get(tk.ACTIVE)
+        year = self.year_menu.get(tk.ACTIVE)
+        players = self.stats.get_players(team, year)
+        RosterWindow(players, team, year)
+
+
+class RosterWindow(tk.Frame):
+
+    def __init__(self, players, team=None, year=None):
+        self.roster = self.quit_button = None
+        
+        self.parent = tk.Toplevel()
+        tk.Frame.__init__(self, self.parent)
+
+        self._create_window(team, year)
+        self._display_roster(players)
+        self._create_quit_button()
+
+
+    def _create_window(self, team, year):
+        self.grid(ipadx=5, ipady=5)
+        if team and year:
+            self.master.title('Roster for ' + team + ', ' + year)
+
+    def _display_roster(self, players):
+        self.roster = tk.Listbox(self)
+        for p in players:
+            self.roster.insert(tk.END, p)
+        self.roster.grid(row=1, column=1)
+
+    def _create_quit_button(self):
+        self.quit_button = tk.Button(self, text='Quit', 
+                                     command=self.parent.destroy)
+        self.quit_button.grid(row=2)
+
 
 if __name__ == '__main__':
     APP = OutputWindow()
