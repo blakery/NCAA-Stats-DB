@@ -339,4 +339,6 @@ class StatsDBOutput(object):
         return players
 
 
-
+    def get_years(self):
+        
+        pass

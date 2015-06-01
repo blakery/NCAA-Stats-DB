@@ -3,22 +3,20 @@ import statsdb
 
 
 class OutputWindow(tk.Frame):
+    #tk.Frame gives us a ton of public methods. so:
+    #pylint: disable=too-many-public-methods
     """ Window for output interface
     """
-#tk.Frame gives us a ton of public methods. so:
-#pylint: disable=too-many-public-methods
+
     def __init__(self, master=None):
-        self.quit_button = None
-        self.select_team = None
+        self.quit_button = self.select_team = self.teams_menu = None
 
         tk.Frame.__init__(self, master)
 
         self.stats = statsdb.StatsDBOutput()
 
-
         self._create_window()
         self._populate_objects()
-
 
 
     def _create_window(self):
@@ -32,32 +30,25 @@ class OutputWindow(tk.Frame):
         self._create_teams_menu()
 
     def _create_quit_button(self):
-        """self-explanitory"""
         self.quit_button = tk.Button(self, text='Quit', command=self.quit,
                                        width=6)
-        self.quit_button.grid(row=2, column=2, padx=10, pady=10)
+        self.quit_button.grid(row=5, column=2, padx=10, pady=10)
 
 
     def _create_teams_menu(self):
-        """
-        self.select_team = tk.Menubutton(self, text="Select Team")
-        self.select_team.grid(row=2, padx=10, pady=10)
+        self.select_team = tk.Label(self, text='Select a Team')
+        self.select_team.grid(row=2, column=1)
         
-        self.teams_menu = tk.Menu(self.select_team, tearoff=0)
+        self.teams_menu = tk.Listbox(self)
         
-        self.teams_menu.add_checkbutton(self,label="foo", variable=tk.IntVar())
-        self.teams_menu.add_checkbutton(self,label="bar", variable=tk.IntVar())
-
-        self.select_team['menu'] = self.teams_menu
-        """
-        self.select_team = tk.Listbox(self)
-        teams = self.stats.get_teams()
+        teams = self.stats.get_teams()        
         for i in teams:
-            self.select_team.insert(tk.END, i)
-        self.select_team.grid(row=1, padx=10, pady=10)
+            self.teams_menu.insert(tk.END, i)
+        self.teams_menu.grid(row=3, column=1, padx=10, pady=10)
 
     def _get_selected_team(self):
-        return self.select_team.get(tk.ACTIVE)
+        return self.teams_menu.get(tk.ACTIVE)
+
 
 if __name__ == '__main__':
     APP = OutputWindow()
