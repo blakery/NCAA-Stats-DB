@@ -8,8 +8,6 @@ import output_window
 
 class MainWindow(tk.Frame):
     """The main window
-    to implement:
-        output button => output window
     """
 
     def __init__(self, master=None):
@@ -62,7 +60,7 @@ class MainWindow(tk.Frame):
 
     def _open_output_window(self):
         """open an OutputWindow"""
-        self.output_window = output_window.OutputWindow()
+        self.output_window = output_window.OutputWindow(tk.Toplevel())
 
     def open_input_window(self):
         """open an InputWindow"""
