@@ -4,9 +4,8 @@ tkinter windows for displaying stats from statsdb.StatsDBOutput
 import Tkinter as tk
 import statsdb
 
-#tk.Frame gives us a ton of public methods.
-#Also, I think usage of single letter variable names is perfectly fine,
-# so long as it's clear. so:
+#tk.Frame gives us a ton of public methods. Also, I think usage of single letter 
+#variable names is perfectly fine, so long as the code is clear. so:
 #pylint: disable=too-many-public-methods
 #pylint: disable=invalid-name
 
@@ -17,7 +16,7 @@ class OutputWindow(tk.Frame):
     """
 
     def __init__(self, master=None):
-        self.select_team = self.teams_menu = None
+        self.select_team = self.teams_menu = display_team_button = None
         self.select_year = self.year_menu = None
         self.show_roster_button = self.quit_button = None
 
@@ -36,17 +35,17 @@ class OutputWindow(tk.Frame):
 
     def _populate_objects(self):
         """call methods to create all of the various objects"""
-        self._create_quit_button()
         self._create_teams_menu()
         self._create_year_menu()
         self._create_show_roster_button()
-
+        self._create_display_team_button()
+        self._create_quit_button()
 
     def _create_quit_button(self):
         """creates the button to quit the program """
         self.quit_button = tk.Button(self, text='Quit', command=self.quit,
                                        width=6)
-        self.quit_button.grid(row=5, column=2, padx=10, pady=10)
+        self.quit_button.grid(row=5, column=3, padx=10, pady=10)
 
 
     def _create_teams_menu(self):
@@ -95,6 +94,24 @@ class OutputWindow(tk.Frame):
         if team and year:
             players = self.stats.get_players(team, year)
             RosterWindow(players, team, year)
+
+    def _create_display_team_button(self):
+        """
+        creates a button to show all stats for the selected team.
+        """
+        self.display_team_button = tk.Button(self, text="Display Team", 
+                                             command=self._display_team)
+        self.display_team_button.grid(row=5, column=2, padx=10, pady=10)
+
+    def _display_team(self):
+        pass
+
+
+
+
+
+
+
 
 
 class RosterWindow(tk.Frame):
