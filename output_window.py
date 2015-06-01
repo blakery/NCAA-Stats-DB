@@ -95,6 +95,7 @@ class OutputWindow(tk.Frame):
             players = self.stats.get_players(team, year)
             RosterWindow(players, team, year)
 
+
     def _create_display_team_button(self):
         """
         creates a button to show all stats for the selected team.
@@ -103,15 +104,45 @@ class OutputWindow(tk.Frame):
                                              command=self._display_team)
         self.display_team_button.grid(row=5, column=2, padx=10, pady=10)
 
+
     def _display_team(self):
-        pass
+        """
+        display the stats for the selected team
+        """
+        team = self.teams_menu.get(tk.ACTIVE)
+        TeamStatsDisplay(team)
 
 
 
 
+class TeamStatsDisplay(tk.Frame):
+    """
+    A window that will display all of a team's stats
+    """
+    def __init__(self, team, master=None):
+        self.quit_button = None
+
+        if not master:
+            self.master = tk.Toplevel()
+        else:
+            self.master = master
+        tk.Frame.__init__(self, self.master)
+
+        self._create_window(team)        
+        self._create_close_button()
+
+    def _create_window(self, team):
+        """Creates the window for the team's stats"""
+        self.grid(ipadx=5, ipady=5)
+        if team:
+            self.master.title('Stats for ' + team)
 
 
-
+    def _create_close_button(self):
+        """Create a button to close the window"""
+        self.quit_button = tk.Button(self, text='Close',
+                                     command=self.master.destroy)
+        self.quit_button.grid(row=2)
 
 
 class RosterWindow(tk.Frame):
