@@ -12,7 +12,7 @@ class OutputWindow(tk.Frame):
 
         self.select_team = self.teams_menu = None
         self.select_year = self.year_menu = None
-        self.quit_button = None
+        self.show_roster_button = self.quit_button = None
         tk.Frame.__init__(self, master)
 
         self.stats = statsdb.StatsDBOutput()
@@ -31,7 +31,7 @@ class OutputWindow(tk.Frame):
         self._create_quit_button()
         self._create_teams_menu()
         self._create_year_menu()
-
+        self._create_show_roster_button()
 
     def _create_quit_button(self):
         self.quit_button = tk.Button(self, text='Quit', command=self.quit,
@@ -66,6 +66,14 @@ class OutputWindow(tk.Frame):
             self.year_menu.insert(tk.END, y)
         self.year_menu.grid(row=2, column=2, padx=10, pady=10)
 
+    def _create_show_roster_button(self):
+        self.show_roster_button = tk.Button(self, text='Get Roster', 
+                                            action=self._show_roster)
+        self.show_roster_button.grid(row=5, column=1, padx=10, pady=10)
+
+
+    def _show_roster(self):
+        pass
 
 if __name__ == '__main__':
     APP = OutputWindow()

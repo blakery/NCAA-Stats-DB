@@ -347,3 +347,6 @@ class StatsDBOutput(object):
         for each in dates:
             years.append(each[0])
         return years
+
+
+
