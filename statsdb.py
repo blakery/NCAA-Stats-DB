@@ -340,5 +340,10 @@ class StatsDBOutput(object):
 
 
     def get_years(self):
-        
-        pass
+        cmd = "SELECT DISTINCT(YEAR(Week)) FROM TeamStats ORDER BY week;"
+        self.cursor.execute(cmd)
+        years = []
+        dates = self.cursor.fetchall()
+        for each in dates:
+            years.append(each[0])
+        return years
