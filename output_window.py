@@ -9,11 +9,10 @@ class OutputWindow(tk.Frame):
 #pylint: disable=too-many-public-methods
     def __init__(self, master=None):
         self.quit_button = None
-        self.teams_menu = None
         self.select_team = None
 
         tk.Frame.__init__(self, master)
-#        self.pack()
+
         self.stats = statsdb.StatsDBOutput()
 
 
@@ -29,14 +28,14 @@ class OutputWindow(tk.Frame):
 
 
     def _populate_objects(self):
-        self.quit_button = self._create_quit_button()
-        self.teams_menu = self._create_teams_menu()
+        self._create_quit_button()
+        self._create_teams_menu()
 
     def _create_quit_button(self):
         """self-explanitory"""
         self.quit_button = tk.Button(self, text='Quit', command=self.quit,
                                        width=6)
-        self.quit_button.grid(row=2, column=1, padx=10, pady=10)
+        self.quit_button.grid(row=2, column=2, padx=10, pady=10)
 
 
     def _create_teams_menu(self):
@@ -57,6 +56,8 @@ class OutputWindow(tk.Frame):
             self.select_team.insert(tk.END, i)
         self.select_team.grid(row=1, padx=10, pady=10)
 
+    def _get_selected_team(self):
+        return self.select_team.get(tk.ACTIVE)
 
 if __name__ == '__main__':
     APP = OutputWindow()
