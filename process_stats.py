@@ -7,6 +7,7 @@ import statsdb
 import sys
 import os
 
+
 def convert_date(old_date):
     """convert the date from the format NCAA uses to one acceptable to mysql
     In the NCAA files, it's month/day/year: We need it to be Year/Month/Day
@@ -14,6 +15,7 @@ def convert_date(old_date):
     temp = re.findall(r'\d+', old_date)
     new_date = temp[2] + "/" + temp[0] + "/" + temp[1]
     return new_date
+
 
 def get_date(csv_file):
     """return the first date encountered in a file"""
@@ -26,18 +28,16 @@ def format_data(row):
     """make sure all the elements are properly formatted"""
     final = []
     for element in row:
-        if element == 'W-L':# separate W-L and int - int into two elements
+        if element == 'W-L':    # separate W-L and int - int into two elements
             final.append('W')
             final.append('L')
-        elif re.match(r'\d+-\d+', element):
+        elif re.match(r'\d+-\d+', element): # separate int-int as well
             final.extend(re.findall(r'\d+', element))
-        elif element == 'NR':
+        elif element == 'NR':    # Standing for "Not Ranked". It's irrelevant.
             final.append('')
-        elif re.match(r'\d+\.\d+', element): #don't replace decimal points
+        elif re.match(r'\d+\.\d+', element):    # don't replace decimal points
             final.append(element)
-#        elif re.match(r'\d+', element): #regex needs to match ONLY numbers
- #           final.append(element)
-        else: # get rid of any other troublesome characters
+        else:                    # get rid of any other troublesome characters
             def elem_repl(match):
                 """simple replacement function to call in re.sub()"""
                 if match.group(0) == ' ':
@@ -56,7 +56,7 @@ def read_stats(reader):
     """read from a csv reader, and return a list of the stats"""
     rows = []
     for row in reader:
-        if len(row) > 1: # anything < length 1 is junk courtesy of NCAA
+        if len(row) > 1:     # anything < length 1 is junk courtesy of NCAA
             rows.append(format_data(row))
     return rows
 
@@ -67,7 +67,7 @@ def process_stats(rows, date, database):
     while i < (len(rows)-1) and rows[i][0] != 'Rank':
         i += 1
     if i == 1:
-        return # didn't go anywhere - probably empty list
+        return                 # didn't go anywhere - probably empty list
     elif rows[i][0] == "Rank": # still have another block after this
         database.process_block(rows[:(i-1)], date)
         process_stats(rows[i:], date, database)
