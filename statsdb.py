@@ -133,7 +133,7 @@ class StatsDBInput(object):
                 except MySQLdb.ProgrammingError, args:
                     errors.mysql_input_error(args, player, header, date)
                 except KeyError, args:
-                    error.missing_column(date, str(args))
+                    errors.missing_column(date, str(args))
         else:
             for team in block[1:]:
                 try:
@@ -141,7 +141,7 @@ class StatsDBInput(object):
                 except MySQLdb.ProgrammingError, args:
                     errors.mysql_input_error(args, team, header, date)
                 except KeyError, args:
-                    error.missing_column(date, str(args))
+                    errors.missing_column(date, str(args))
 
 
 
@@ -219,7 +219,7 @@ class StatsDBInput(object):
         revised_headers, values = edit_stats(stats[2:], headers[2:])
 
         cmd = "INSERT INTO " + stats[1] + "(name, Week"
-        
+
         if revised_headers and values:
             for h in revised_headers:
                 cmd += ", " + h
@@ -323,7 +323,6 @@ class StatsDBOutput(object):
         '''
         returns the roster of a team for a particular year as a list
         '''
-
         cmd = "SELECT * FROM " + team + " WHERE YEAR(Week) = %s;"
         self.cursor.execute(cmd, year)
         players = []
@@ -340,6 +339,7 @@ class StatsDBOutput(object):
 
 
     def get_years(self):
+        """Get a list of all the years for which statics exist in the db"""
         cmd = "SELECT DISTINCT(YEAR(Week)) FROM TeamStats ORDER BY week;"
         self.cursor.execute(cmd)
         years = []
@@ -349,4 +349,13 @@ class StatsDBOutput(object):
         return years
 
 
-
+    def get_team_stats(self, team):
+        '''
+        returns a tuple of a list containing the column descriptions and a list
+        of each line of stats for the team indicated. so: ([], [[]])
+        '''
+        cmd = "SELECT * FROM TeamStats WHERE Name = %s;"
+        self.cursor.execute(cmd, team)
+        team_stats = self.cursor.fetchall()
+        
+        return ['description'], team_stats

@@ -41,6 +41,7 @@ class OutputWindow(tk.Frame):
         self._create_display_team_button()
         self._create_quit_button()
 
+
     def _create_quit_button(self):
         """creates the button to quit the program """
         self.quit_button = tk.Button(self, text='Quit', command=self.quit,
@@ -110,7 +111,8 @@ class OutputWindow(tk.Frame):
         display the stats for the selected team
         """
         team = self.teams_menu.get(tk.ACTIVE)
-        TeamStatsDisplay(team)
+        TeamStatsDisplay(team, self.stats)
+
 
 
 
@@ -119,8 +121,8 @@ class TeamStatsDisplay(tk.Frame):
     """
     A window that will display all of a team's stats
     """
-    def __init__(self, team, master=None):
-        self.quit_button = None
+    def __init__(self, team, db, master=None):
+        self.quit_button = self.column_labels = self.team_stats_display = None
 
         if not master:
             self.master = tk.Toplevel()
@@ -129,7 +131,13 @@ class TeamStatsDisplay(tk.Frame):
         tk.Frame.__init__(self, self.master)
 
         self._create_window(team)        
+        
+        columns, stats = db.get_team_stats(team)
+        self._create_column_labels(columns)
+        self._display_team_stats(stats)
+
         self._create_close_button()
+
 
     def _create_window(self, team):
         """Creates the window for the team's stats"""
@@ -144,6 +152,19 @@ class TeamStatsDisplay(tk.Frame):
                                      command=self.master.destroy)
         self.quit_button.grid(row=2)
 
+    def _create_column_labels(self, columns):
+        #TODO: Find a widget that formats this automatically
+        labels = ''
+        for label in columns:
+            labels += label + " "
+        self.column_labels = tk.Label(self, text=labels)
+        self.column_labels.grid()
+
+    def _display_team_stats(self, stats):
+        self.team_stats_display = tk.Listbox(self)
+        for line in stats:
+            self.team_stats_display.insert(tk.END, str(line))
+        self.team_stats_display.grid()
 
 class RosterWindow(tk.Frame):
     """

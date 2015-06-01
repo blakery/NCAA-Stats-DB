@@ -1,5 +1,5 @@
 """
-process ncaa basketball stats from a csv file
+process ncaa basketball stats from csv files
 """
 import csv
 import re
