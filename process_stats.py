@@ -118,4 +118,6 @@ def process(filepath):
 
 
 if __name__ == "__main__":
-    process(sys.argv[1])
+    if len(sys.argv) > 1:
+        process(sys.argv[1])
+
