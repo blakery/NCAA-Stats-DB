@@ -356,6 +356,13 @@ class StatsDBOutput(object):
         '''
         cmd = "SELECT * FROM TeamStats WHERE Name = %s;"
         self.cursor.execute(cmd, team)
+
         team_stats = self.cursor.fetchall()
-        
-        return ['description'], team_stats
+
+        desc = self.cursor.description
+        column_names = []
+        for d in desc:
+            column_names.append(d[0])
+
+        return column_names, team_stats
+
