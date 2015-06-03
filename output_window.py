@@ -69,8 +69,8 @@ class OutputWindow(tk.Frame):
 
         self.year_menu = tk.Listbox(self, exportselection=False)
 
+        self.year_menu.insert(tk.END, "Select a year")
         years = self.stats.get_years()
-
         for y in years:
             self.year_menu.insert(tk.END, y)
         self.year_menu.grid(row=2, column=2, padx=10, pady=10)
@@ -92,7 +92,10 @@ class OutputWindow(tk.Frame):
         """
         team = self.teams_menu.get(tk.ACTIVE)
         year = self.year_menu.get(tk.ACTIVE)
-        if team and year:
+        if year == "Select a year":
+            players = self.stats.get_players(team, None)
+            RosterWindow(players, team, None)
+        elif team and year:
             players = self.stats.get_players(team, year)
             RosterWindow(players, team, year)
 
@@ -166,6 +169,7 @@ class TeamStatsDisplay(tk.Frame):
             self.team_stats_display.insert(tk.END, str(line))
         self.team_stats_display.grid()
 
+
 class RosterWindow(tk.Frame):
     """
     A window that will display the roster for a team in a particular year
@@ -190,6 +194,8 @@ class RosterWindow(tk.Frame):
         self.grid(ipadx=5, ipady=5)
         if team and year:
             self.master.title('Roster for ' + team + ', ' + year)
+        elif team:
+            self.master.title('Roster for ' + team + ', all years')
 
     def _display_roster(self, players):
         """display the roster of players in a Listbox"""

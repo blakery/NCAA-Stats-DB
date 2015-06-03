@@ -321,10 +321,15 @@ class StatsDBOutput(object):
 
     def get_players(self, team, year):
         '''
-        returns the roster of a team for a particular year as a list
+        returns the roster of a team for a particular year as a list.
+        If year is None, returns all players for the team.
         '''
-        cmd = "SELECT * FROM " + team + " WHERE YEAR(Week) = %s;"
-        self.cursor.execute(cmd, year)
+        if year:
+            cmd = "SELECT * FROM " + team + " WHERE YEAR(Week) = %s;"
+            self.cursor.execute(cmd, year)
+        else:
+            cmd = "SELECT * FROM " + team + ";"
+            self.cursor.execute(cmd)
         players = []
         player_data = self.cursor.fetchall()
 
