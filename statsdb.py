@@ -134,8 +134,15 @@ class StatsDBInput(object):
 
 
     def add_team_stats(self, stats, headers, date):
+        """
+        Decides whether to add a new entry for a team, or update an existing
+        entry, and calls the apropriate function.
+        """
         cmd = "SELECT * FROM TeamStats WHERE Name = %s AND week = %s;"
-        self.cursor.execute(cmd, (stats[0], date))
+        try: self.cursor.execute(cmd, (stats[0], date))
+        except:
+            mysql_input_error(args, stats=stats, headers=headers, date=date, 
+                        action="Querying TeamStats for %s".format(stats[0]))
         if len(self.cursor.fetchall()):
             self._update_team_stats(stats, headers, date)
         else:
@@ -190,21 +197,40 @@ class StatsDBInput(object):
             - creates a team roster table
             - adds the team to the teams table
         """
-        self.cursor.execute("SELECT * FROM teams WHERE name = %s;", school)
-
+        try:
+            self.cursor.execute("SELECT * FROM teams WHERE name = %s;", school)
+        except MySQLdb.Error, args:
+            action = 'Querying teams for "%s"'.format(school)
+            mysql_input_error(args, action=action)
+        
         if len(self.cursor.fetchall()) == 0:
-            self.cursor.execute("INSERT INTO teams(name) VALUES(%s);", school)
+            try: 
+                cmd = "INSERT INTO teams(name) VALUES(%s);"
+                self.cursor.execute(cmd, school)
+            except MySQLdb.Error, args:
+                action = 'Inserting "%s" into teams table'.format(school)
+                mysql_input_error(args, action=action)
 
         try:
             self.cursor.execute("SELECT * FROM {};".format(school))
         except MySQLdb.Error:
+            cmd = "CREATE TABLE %s (%s %s"
             fields = stats_headers.PLAYER_STATS.items()
+            vals = [school]
+
             name, value = fields[0]
-            field_names = name + " " + value
+            vals.append(name) 
+            vals.append(value)
             for (name, value) in fields[1:]:
-                field_names += ", \n" + name + " " + value
-            self.cursor.execute(
-                "CREATE TABLE {} ({});".format(school, field_names))
+                vals.append(name) 
+                vals.append(value)
+                cmd += ", %s %s"
+            cmd += ");"
+
+            try: self.cursor.execute(cmd, vals)
+            except MySQLdb.Error, args:
+                action = "Creating table for %s".format(school)
+                mysql_input_error(args, action=action)
         else: return
 
 
