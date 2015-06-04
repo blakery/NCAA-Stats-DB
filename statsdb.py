@@ -141,8 +141,9 @@ class StatsDBInput(object):
         cmd = "SELECT * FROM TeamStats WHERE Name = %s AND week = %s;"
         try: self.cursor.execute(cmd, (stats[0], date))
         except:
-            mysql_input_error(args, stats=stats, headers=headers, date=date, 
-                        action="Querying TeamStats for %s".format(stats[0]))
+            action = "Querying TeamStats for %s".format(stats[0])
+            errors.mysql_input_error(args, stats=stats, headers=headers, 
+                                     date=date, action=action)
         if len(self.cursor.fetchall()):
             self._update_team_stats(stats, headers, date)
         else:
@@ -187,8 +188,8 @@ class StatsDBInput(object):
         try: self.cursor.execute(cmd, values)
         except MySQLdb.Error, args:
             action = "Adding a new TeamStats entry"
-            mysql_input_error(args, stats=stats, headers=headers, date=date, 
-                              action=action)
+            errors.mysql_input_error(args, stats=stats, headers=headers, 
+                                     date=date, action=action)
 
 
     def _add_team(self, school):
@@ -201,7 +202,7 @@ class StatsDBInput(object):
             self.cursor.execute("SELECT * FROM teams WHERE name = %s;", school)
         except MySQLdb.Error, args:
             action = 'Querying teams for "%s"'.format(school)
-            mysql_input_error(args, action=action)
+            errors.mysql_input_error(args, action=action)
         
         if len(self.cursor.fetchall()) == 0:
             try: 
@@ -209,7 +210,7 @@ class StatsDBInput(object):
                 self.cursor.execute(cmd, school)
             except MySQLdb.Error, args:
                 action = 'Inserting "%s" into teams table'.format(school)
-                mysql_input_error(args, action=action)
+                errors.mysql_input_error(args, action=action)
 
         try:
             self.cursor.execute("SELECT * FROM {};".format(school))
@@ -230,7 +231,7 @@ class StatsDBInput(object):
             try: self.cursor.execute(cmd, vals)
             except MySQLdb.Error, args:
                 action = "Creating table for %s".format(school)
-                mysql_input_error(args, action=action)
+                errors.mysql_input_error(args, action=action)
         else: return
 
 
@@ -248,8 +249,9 @@ class StatsDBInput(object):
         cmd = "SELECT * FROM " + stats[1] + " WHERE Name = %s AND Week = %s;"
         try: self.cursor.execute(cmd, (stats[0], date))
         except MySQLdb.Error, args:
-            mysql_input_error(args, stats=stats, headers=headers, date=date, 
-                              action="Querying %s for player".format(stats[1]))
+            action = "Querying %s for player".format(stats[1])
+            errors.mysql_input_error(args, stats=stats, headers=headers, 
+                                     date=date, action=action)
         if len(self.cursor.fetchall()) == 0:
             self._add_new_player_stats(stats, headers, date)
         else:
@@ -311,7 +313,9 @@ class StatsDBInput(object):
             self.cursor.execute("SELECT * FROM teams;")
         except MySQLdb.Error:
             self.cursor.execute("CREATE TABLE teams(name TEXT);")
-        self.cursor.execute("COMMIT;")
+        try: self.cursor.execute("COMMIT;")
+        except MySQLdb.Error, args:
+            errors.mysql_input_error(args, action="Committing changes")
 
 
     def _create_team_stats_table(self):
@@ -326,8 +330,9 @@ class StatsDBInput(object):
                 cmd += ", " + name + " " + value
             cmd += ");"
             try: self.cursor.execute(cmd)
-            except MySQLdb.Error, args:                
-                mysql_input_error(args, action="Creating TeamStats table")
+            except MySQLdb.Error, args:
+                action = "Creating TeamStats table"
+                errors.mysql_input_error(args, action=action)
 
 
 class StatsDBOutput(object):
