@@ -79,7 +79,6 @@ def edit_stats(stats, names, names_ret=None, stats_ret=None):
     val = get_edited_val(stats, name)
     if not val:
         return edit_stats(stats[1:], names[1:], names_ret, stats_ret)
-
     if not names_ret or not stats_ret:
         return edit_stats(stats[1:], names[1:], [name], [val])
     else:
@@ -145,9 +144,11 @@ class StatsDBInput(object):
             errors.mysql_input_error(args, stats=stats, headers=headers, 
                                      date=date, action=action)
         if len(self.cursor.fetchall()):
-            self._update_team_stats(stats, headers, date)
+            if self._update_team_stats(stats, headers, date): 
+                self.teams_updated +=1
         else:
-            self._add_new_team_stats(stats, headers, date)
+            if self._add_new_team_stats(stats, headers, date): 
+                self.teams_added += 1
 
 
     def _update_team_stats(self, stats, headers, date):
@@ -167,6 +168,7 @@ class StatsDBInput(object):
         values.append(stats[0], date)
         #self.cursor.execute(cmd, values)
         print cmd.format(values)
+
 
     def _add_new_team_stats(self, stats, headers, date):
         """
@@ -190,6 +192,8 @@ class StatsDBInput(object):
             action = "Adding a new TeamStats entry"
             errors.mysql_input_error(args, stats=stats, headers=headers, 
                                      date=date, action=action)
+            return False
+        else: return True
 
 
     def _add_team(self, school):
@@ -253,9 +257,11 @@ class StatsDBInput(object):
             errors.mysql_input_error(args, stats=stats, headers=headers, 
                                      date=date, action=action)
         if len(self.cursor.fetchall()) == 0:
-            self._add_new_player_stats(stats, headers, date)
+            if self._add_new_player_stats(stats, headers, date): 
+                self.players_added += 1
         else:
-            self._update_player_stats(stats, headers, date)
+            if self._update_player_stats(stats, headers, date):
+                self.players_updated += 1
 
 
 
@@ -284,14 +290,15 @@ class StatsDBInput(object):
             action = "Adding a new player stats entry to %s".format(stats[1])
             errors.mysql_input_error(args, stats=stats, headers=headers, 
                                      date=date, action=action)
-
+            return False
+        else: return True
 
     def _update_player_stats(self, stats, headers, date):
         """called by add_player_stats() to update an existing player"""
 
         revised_headers, values = edit_stats(stats[2:], headers[2:])
         if not revised_headers or not values:
-            return    # pointless to update if we don't have any stats
+            return False   # can't update if we don't have any stats
 
         cmd = "UPDATE " + stats[1] + "\nSET " + revised_headers[0] + " = %s "
         for n in revised_headers[1:]:
@@ -303,7 +310,8 @@ class StatsDBInput(object):
             self.cursor.execute(cmd, values)
         except MySQLdb.Error, args:
             errors.mysql_input_error(args, stats, headers, date)
-
+            return False
+        else: return True
 
 
     def _create_teams_table(self):
