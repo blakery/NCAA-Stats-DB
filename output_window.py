@@ -155,6 +155,7 @@ class TeamStatsDisplay(tk.Frame):
                                      command=self.master.destroy)
         self.quit_button.grid(row=2)
 
+
     def _create_column_labels(self, columns):
         #TODO: Find a widget that formats this automatically
         labels = ''
@@ -162,6 +163,7 @@ class TeamStatsDisplay(tk.Frame):
             labels += label + " "
         self.column_labels = tk.Label(self, text=labels)
         self.column_labels.grid()
+
 
     def _display_team_stats(self, stats):
         self.team_stats_display = tk.Listbox(self)
@@ -174,16 +176,13 @@ class RosterWindow(tk.Frame):
     """
     A window that will display the roster for a team in a particular year
     """
-
     def __init__(self, players, team, year, master=None):
         self.roster = self.quit_button = None
-
         if not master:
             self.master = tk.Toplevel()
         else:
             self.master = master
         tk.Frame.__init__(self, self.master)
-
         self._create_window(team, year)
         self._display_roster(players)
         self._create_close_button()
@@ -197,12 +196,14 @@ class RosterWindow(tk.Frame):
         elif team:
             self.master.title('Roster for ' + team + ', all years')
 
+
     def _display_roster(self, players):
         """display the roster of players in a Listbox"""
         self.roster = tk.Listbox(self)
         for p in players:
             self.roster.insert(tk.END, p)
         self.roster.grid(row=1, column=1)
+
 
     def _create_close_button(self):
         """Create a button to close the window"""
