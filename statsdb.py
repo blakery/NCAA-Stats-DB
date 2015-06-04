@@ -93,12 +93,12 @@ class StatsDBInput(object):
     Class for adding entries to the stats database in the form
     given by the parser
 
-    Attributes:
-        _db -- database connection returned by MySQLdb.connect()
-        cursor -- cursor object returned by _db.connect()
     """
-    def __init__(self, host=None, user=None,
-                 password="", db=None):
+    def __init__(self, host=None, user=None, password="", db=None):
+        self._db = self.cursor = None
+        self.teams_added = self.teams_updated = 0
+        self.players_added = self.players_updated = 0
+        
         if host is None:
             host = Config.getSQLHost()
         if user is None:
@@ -333,6 +333,9 @@ class StatsDBInput(object):
             except MySQLdb.Error, args:
                 action = "Creating TeamStats table"
                 errors.mysql_input_error(args, action=action)
+
+
+
 
 
 class StatsDBOutput(object):
