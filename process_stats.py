@@ -78,7 +78,7 @@ def process_stats(rows, date, database):
 def process_csv_file(csvfile):
     """read and process ncaa basketball stats from a csv file"""
     database = statsdb.StatsDBInput()
-    print "Processing " + str(csvfile)
+
     with open(csvfile) as infile:
         date = get_date(infile)
 
@@ -86,7 +86,11 @@ def process_csv_file(csvfile):
         reader = csv.reader(infile)
         rows = read_stats(reader)
         process_stats(rows, date, database)
-
+        print ("Processed {}:".format(str(csvfile)))
+        print ("\t{} team stats entries added, {} updated.".format(
+            str(database.teams_added), str(database.teams_updated)))
+        print ("\t{} player statis entries added, {} updated.".format(
+            str(database.players_added), str(database.players_updated)))
 
 
 def is_ncaa_stat_file(filepath):
