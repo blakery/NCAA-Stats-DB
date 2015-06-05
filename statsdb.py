@@ -138,7 +138,7 @@ class StatsDBInput(object):
         entry, and calls the apropriate function.
         """
         cmd = "SELECT * FROM TeamStats WHERE Name = %s AND week = %s;"
-        try: self.cursor.execute(cmd, (stats[0], date))
+        try: self.cursor.execute(cmd, [stats[0], date])
         except MySQLdb.Error, args:
             action = "Querying TeamStats for %s".format(stats[0])
             errors.mysql_input_error(args, stats=stats, headers=headers,
@@ -257,8 +257,9 @@ class StatsDBInput(object):
 
         self._add_team(stats[1])
 
-        cmd = "SELECT * FROM " + stats[1] + " WHERE Name = %s AND Week = %s;"
-        try: self.cursor.execute(cmd, (stats[0], date))
+        cmd = "SELECT * FROM {} WHERE Name = %s AND Week = %s;".format(stats[1])
+        
+        try: self.cursor.execute(cmd, [stats[0], date])
         except MySQLdb.Error, args:
             action = "Querying %s for player".format(stats[1])
             errors.mysql_input_error(args, stats=stats, headers=headers,
