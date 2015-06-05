@@ -97,7 +97,7 @@ class StatsDBInput(object):
         self._db = self.cursor = None
         self.teams_added = self.teams_updated = 0
         self.players_added = self.players_updated = 0
-        
+
         if host is None:
             host = Config.getSQLHost()
         if user is None:
@@ -139,15 +139,15 @@ class StatsDBInput(object):
         """
         cmd = "SELECT * FROM TeamStats WHERE Name = %s AND week = %s;"
         try: self.cursor.execute(cmd, (stats[0], date))
-        except:
+        except MySQLdb.Error, args:
             action = "Querying TeamStats for %s".format(stats[0])
-            errors.mysql_input_error(args, stats=stats, headers=headers, 
+            errors.mysql_input_error(args, stats=stats, headers=headers,
                                      date=date, action=action)
         if len(self.cursor.fetchall()):
-            if self._update_team_stats(stats, headers, date): 
-                self.teams_updated +=1
+            if self._update_team_stats(stats, headers, date):
+                self.teams_updated += 1
         else:
-            if self._add_new_team_stats(stats, headers, date): 
+            if self._add_new_team_stats(stats, headers, date):
                 self.teams_added += 1
 
 
@@ -157,18 +157,24 @@ class StatsDBInput(object):
         stats is a list consisting of: [team name, stats...]
         """
         names, values = edit_stats(stats[1:], headers[1:])
-        if not names or not values: return
-        
-        cmd = "UPDATE TeamStats SET " + names[0] + " = " + values[0] 
-        if len(names) > 1 and len(values > 1):
-            cmd += ", "
-            for n, v in names[1], values[1]:
-                cmd += " , " + n + " = " + v
-        cmd += "WHERE name = %s AND Week = %s;"
-        values.append(stats[0], date)
-        #self.cursor.execute(cmd, values)
-        print cmd.format(values)
+        if not names or not values: 
+            return False
 
+        cmd = "UPDATE TeamStats SET {} = %s ".format(names[0])
+        for i in range(1, min((len(names)), (len(values)))):
+            cmd += ", " + names[i] + " = %s " 
+        cmd += "WHERE name = %s AND Week = %s;"
+        values.append(stats[0])
+        values.append(date)
+
+        try: self.cursor.execute(cmd, values)
+        except MySQLdb.Error, args:
+            action = "Updating a team"
+            errors.mysql_input_error(args, stats=stats, headers=headers,
+                                     date=date, action=action)
+            return False
+        else:
+            return True
 
     def _add_new_team_stats(self, stats, headers, date):
         """
@@ -187,10 +193,11 @@ class StatsDBInput(object):
         cmd += "%s);"
         values.append(date)
 
-        try: self.cursor.execute(cmd, values)
+        try:
+            self.cursor.execute(cmd, values)
         except MySQLdb.Error, args:
             action = "Adding a new TeamStats entry"
-            errors.mysql_input_error(args, stats=stats, headers=headers, 
+            errors.mysql_input_error(args, stats=stats, headers=headers,
                                      date=date, action=action)
             return False
         else: return True
@@ -207,9 +214,9 @@ class StatsDBInput(object):
         except MySQLdb.Error, args:
             action = 'Querying teams for "%s"'.format(school)
             errors.mysql_input_error(args, action=action)
-        
+
         if len(self.cursor.fetchall()) == 0:
-            try: 
+            try:
                 cmd = "INSERT INTO teams(name) VALUES(%s);"
                 self.cursor.execute(cmd, school)
             except MySQLdb.Error, args:
@@ -224,10 +231,10 @@ class StatsDBInput(object):
             vals = [school]
 
             name, value = fields[0]
-            vals.append(name) 
+            vals.append(name)
             vals.append(value)
             for (name, value) in fields[1:]:
-                vals.append(name) 
+                vals.append(name)
                 vals.append(value)
                 cmd += ", %s %s"
             cmd += ");"
@@ -254,10 +261,10 @@ class StatsDBInput(object):
         try: self.cursor.execute(cmd, (stats[0], date))
         except MySQLdb.Error, args:
             action = "Querying %s for player".format(stats[1])
-            errors.mysql_input_error(args, stats=stats, headers=headers, 
+            errors.mysql_input_error(args, stats=stats, headers=headers,
                                      date=date, action=action)
         if len(self.cursor.fetchall()) == 0:
-            if self._add_new_player_stats(stats, headers, date): 
+            if self._add_new_player_stats(stats, headers, date):
                 self.players_added += 1
         else:
             if self._update_player_stats(stats, headers, date):
@@ -288,7 +295,7 @@ class StatsDBInput(object):
             self.cursor.execute(cmd, values)
         except MySQLdb.Error, args:
             action = "Adding a new player stats entry to %s".format(stats[1])
-            errors.mysql_input_error(args, stats=stats, headers=headers, 
+            errors.mysql_input_error(args, stats=stats, headers=headers,
                                      date=date, action=action)
             return False
         else: return True
