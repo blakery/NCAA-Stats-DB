@@ -8,6 +8,14 @@ import sys
 import os
 
 
+def has_valid_data(csv_file):
+    """
+    returns true if the file has valid data that can be extracted, false if not
+    """
+    raise NotImplementedError
+    return True
+
+
 def convert_date(old_date):
     """convert the date from the format NCAA uses to one acceptable to mysql
     In the NCAA files, it's month/day/year: We need it to be Year/Month/Day
