@@ -130,7 +130,10 @@ class StatsDBInput(object):
         else:
             for team in block[1:]:
                 self.add_team_stats(team[1:], header[1:], date)
-
+        try: 
+            self.cursor.execute("COMMIT;")
+        except MySQLdb.Error, args:
+            errors.mysql_input_error(args, action="Committing changes")
 
     def add_team_stats(self, stats, headers, date):
         """
@@ -322,12 +325,9 @@ class StatsDBInput(object):
         """create the global teams table"""
         #FIXME: check if resource exists in a more sensible way (ie IF EXISTS)
         try:
-            self.cursor.execute("SELECT * FROM teams;")
-        except MySQLdb.Error:
-            self.cursor.execute("CREATE TABLE teams(name TEXT);")
-        try: self.cursor.execute("COMMIT;")
+            self.cursor.execute("CREATE TABLE IF NOT EXISTS teams(name TEXT);")
         except MySQLdb.Error, args:
-            errors.mysql_input_error(args, action="Committing changes")
+            errors.mysql_input_error(args, action="Creating teams table")
 
 
     def _create_team_stats_table(self):
