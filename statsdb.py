@@ -209,6 +209,7 @@ class StatsDBInput(object):
             - creates a team roster table
             - adds the team to the teams table
         """
+        self._create_table_for_team(school)
         try:
             self.cursor.execute("SELECT * FROM teams WHERE name = %s;", school)
         except MySQLdb.Error, args:
@@ -223,29 +224,22 @@ class StatsDBInput(object):
                 action = 'Inserting "%s" into teams table'.format(school)
                 errors.mysql_input_error(args, action=action)
 
-        try:
-            self.cursor.execute("SELECT * FROM {};".format(school))
-        except MySQLdb.Error:
-            cmd = "CREATE TABLE %s (%s %s"
-            fields = stats_headers.PLAYER_STATS.items()
-            vals = [school]
 
-            name, value = fields[0]
-            vals.append(name)
-            vals.append(value)
-            for (name, value) in fields[1:]:
-                vals.append(name)
-                vals.append(value)
-                cmd += ", %s %s"
-            cmd += ");"
-
-            try: self.cursor.execute(cmd, vals)
-            except MySQLdb.Error, args:
-                action = "Creating table for {}".format(school)
-                errors.mysql_input_error(args, action=action)
-        else: return
-
-
+    def _create_table_for_team(self, school):
+        """
+        create a table for 'school', if needed, for it's players' stats
+        """
+        fields = stats_headers.PLAYER_STATS.items()
+        name, value = fields[0]
+        cmd = "CREATE TABLE IF NOT EXISTS {} (\n{} {}".format(
+            school, name, value)
+        for (name, value) in fields[1:]:
+            cmd += ",\n{} {}".format(name, value)
+        cmd += "\n);"
+        try: self.cursor.execute(cmd)
+        except MySQLdb.Error, args:
+            action = "Creating table for {}".format(school)
+            errors.mysql_input_error(args, action=action)
 
 
     def add_player_stats(self, stats, headers, date):
