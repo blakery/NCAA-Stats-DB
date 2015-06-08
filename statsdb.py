@@ -135,6 +135,7 @@ class StatsDBInput(object):
         except MySQLdb.Error, args:
             errors.mysql_input_error(args, action="Committing changes")
 
+
     def add_team_stats(self, stats, headers, date):
         """
         Decides whether to add a new entry for a team, or update an existing
@@ -178,6 +179,7 @@ class StatsDBInput(object):
             return False
         else:
             return True
+
 
     def _add_new_team_stats(self, stats, headers, date):
         """
@@ -239,10 +241,15 @@ class StatsDBInput(object):
         for (name, value) in fields[1:]:
             cmd += ",\n{} {}".format(name, value)
         cmd += "\n);"
-        try: self.cursor.execute(cmd)
+
+        try:
+            self.cursor.execute("SET sql_notes = 0; ") 
+            self.cursor.execute(cmd)
         except MySQLdb.Error, args:
             action = "Creating table for {}".format(school)
             errors.mysql_input_error(args, action=action)
+        finally:
+            self.cursor.execute("SET sql_notes = 1; ") 
 
 
     def add_player_stats(self, stats, headers, date):
@@ -251,9 +258,7 @@ class StatsDBInput(object):
         stats is a list in the form of [name, school, stats...]
         headers is a list of the corresponding column names
         """
-
         self._add_team(stats[1])
-
         cmd = "SELECT * FROM {} WHERE Name = %s AND Week = %s;".format(stats[1])
         
         try: self.cursor.execute(cmd, [stats[0], date])
@@ -323,30 +328,30 @@ class StatsDBInput(object):
 
     def _create_teams_table(self):
         """create the global teams table"""
-        #FIXME: check if resource exists in a more sensible way (ie IF EXISTS)
         try:
+            self.cursor.execute("SET sql_notes = 0; ") 
             self.cursor.execute("CREATE TABLE IF NOT EXISTS teams(name TEXT);")
         except MySQLdb.Error, args:
             errors.mysql_input_error(args, action="Creating teams table")
-
+        finally:
+            self.cursor.execute("SET sql_notes = 1; ") 
 
     def _create_team_stats_table(self):
         """create the global teamstats table"""
-        try:
-            self.cursor.execute("SELECT * FROM TeamStats;")
-        except MySQLdb.Error:
-            cmd = "CREATE TABLE TeamStats("
-            fields = stats_headers.TEAM_STATS.items()
-            cmd += fields[0][0] + " " + fields[0][1]
-            for (name, value) in fields[1:]:
-                cmd += ", " + name + " " + value
-            cmd += ");"
-            try: self.cursor.execute(cmd)
-            except MySQLdb.Error, args:
-                action = "Creating TeamStats table"
-                errors.mysql_input_error(args, action=action)
-
-
+        cmd = "CREATE TABLE IF NOT EXISTS TeamStats("
+        fields = stats_headers.TEAM_STATS.items()
+        cmd += fields[0][0] + " " + fields[0][1]
+        for (name, value) in fields[1:]:
+            cmd += ", " + name + " " + value
+        cmd += ");"
+        try: 
+            self.cursor.execute("SET sql_notes = 0; ") 
+            self.cursor.execute(cmd)
+        except MySQLdb.Error, args:
+            action = "Creating TeamStats table"
+            errors.mysql_input_error(args, action=action)
+        finally:
+            self.cursor.execute("SET sql_notes = 1; ") 
 
 
 
