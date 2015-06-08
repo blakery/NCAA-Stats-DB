@@ -125,7 +125,7 @@ class TeamStatsDisplay(tk.Frame):
     A window that will display all of a team's stats
     """
     def __init__(self, team, db, master=None):
-        self.quit_button = self.column_labels = self.team_stats_display = None
+        self.stats_cols = self.quit_button = self.column_labels = self.team_stats_display = None
 
         if not master:
             self.master = tk.Toplevel()
@@ -136,11 +136,38 @@ class TeamStatsDisplay(tk.Frame):
         self._create_window(team)        
         
         columns, stats = db.get_team_stats(team)
-        self._create_column_labels(columns)
-        self._display_team_stats(stats)
-
+        columns, stats = self._remove_empty_values(columns, stats)
+        #self._create_column_labels(columns)
+        #self._display_team_stats(stats)
+        self._display_stats_in_separate_boxes(columns, stats)
         self._create_close_button()
 
+    def _remove_empty_values(self, names, stats):
+        """
+        Takes a list of names and lines of stats, and removes all items if each
+        stats entry is Null for that particular item.
+        """
+        names_ret = []
+        stats_ret = []
+        for i in range(1, len(stats)):
+            stats_ret.append([])
+        for i in range(0, len(names)-1):
+            remove = True
+            for line in stats:
+                if (len(line) > i) and line[i] != None:
+                    remove = False
+            # Order properly as well as omiting empty columns:
+            if remove is False:
+                if names[i] == 'Name':
+                    names_ret.insert(0, names[i])
+                    for j in range(0, len(stats)-1):
+                        stats_ret[j].insert(0, stats[j][i])    
+                else:
+                    names_ret.append(names[i])
+                    for j in range(0, len(stats)-1):
+                        stats_ret[j].append(str(stats[j][i]))
+
+        return names_ret, stats_ret
 
     def _create_window(self, team):
         """Creates the window for the team's stats"""
@@ -155,6 +182,16 @@ class TeamStatsDisplay(tk.Frame):
                                      command=self.master.destroy)
         self.quit_button.grid(row=2)
 
+    def _display_stats_in_separate_boxes(self, names, stats):
+        self.stats_cols = []
+        for i in range(0, min(len(names), len(stats)) - 1):
+            column = tk.Listbox(self)
+            column.insert(tk.END, names[i])
+            for line in stats:
+                column.insert(tk.END, str(line[i]))
+            column.grid(row=1, column=i+1)
+            #column.grid()
+            self.stats_cols.append(column)
 
     def _create_column_labels(self, columns):
         #TODO: Find a widget that formats this automatically

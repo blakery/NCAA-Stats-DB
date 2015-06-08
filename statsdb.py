@@ -183,7 +183,7 @@ class StatsDBInput(object):
         """
         self._add_team(stats[0])
 
-        names, values = edit_stats(stats[1:], headers[1:])
+        names, values = edit_stats(stats, headers)
         cmd = "INSERT INTO TeamStats("
         for n in names:
             cmd += n + ", "
@@ -241,7 +241,7 @@ class StatsDBInput(object):
 
             try: self.cursor.execute(cmd, vals)
             except MySQLdb.Error, args:
-                action = "Creating table for %s".format(school)
+                action = "Creating table for {}".format(school)
                 errors.mysql_input_error(args, action=action)
         else: return
 
@@ -300,6 +300,8 @@ class StatsDBInput(object):
                                      date=date, action=action)
             return False
         else: return True
+
+
 
     def _update_player_stats(self, stats, headers, date):
         """called by add_player_stats() to update an existing player"""
@@ -429,8 +431,11 @@ class StatsDBOutput(object):
         cmd = "SELECT * FROM TeamStats WHERE Name = %s;"
         self.cursor.execute(cmd, team)
 
-        team_stats = self.cursor.fetchall()
-
+        team_stats_tuples = self.cursor.fetchall()
+        team_stats = []
+        for line in team_stats_tuples:
+            line = team_stats.append(list(line))
+            
         desc = self.cursor.description
         column_names = []
         for d in desc:

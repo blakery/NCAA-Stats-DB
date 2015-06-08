@@ -22,6 +22,20 @@ def mysql_input_error(args, stats=None, headers=None, date=None, action=None):
         print >> sys.stderr, headers
 
 
+def mysql_testing_error(args, info=None, action=None):
+    '''
+    Called if a MySQLdb exception is thrown during testing.
+    This should NOT be used to indicate a simple failed test.
+    Uses are for things such as failing to remove a test case.
+    Info is additional info, such as the name or table in which the error
+    occoured, and action is what was being attempted at the time. Usually the
+    function name will sufice.
+    '''
+    if action:
+        print >> sys.stderr, "Error when {}.".format(action)
+    print >> sys.stderr, args
+    if info:
+        print >> sys.stderr, "Additional info: {}".format(info)
 
 
 def missing_column(date, args):
